@@ -41,6 +41,7 @@ export {
   getTodos as getTodoistTodos,
   getProjects as getTodoistProjects,
   getTags as getTodoistTags,
+  getInvalidAPITokenError as getInvalidTodoistAPITokenError,
 } from "./todoist";
 
 type TodoSourceIdPrefixed<Str extends string> = `${TodoSourceId}_${Str}`;

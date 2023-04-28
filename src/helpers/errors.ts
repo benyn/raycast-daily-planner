@@ -1,7 +1,31 @@
-import { open, openCommandPreferences, openExtensionPreferences, showToast, Toast } from "@raycast/api";
+import {
+  environment,
+  LaunchType,
+  open,
+  openCommandPreferences,
+  openExtensionPreferences,
+  showHUD,
+  showToast,
+  Toast,
+} from "@raycast/api";
 import { createCalendars } from "../api/eventkit";
 
-export const COMMAND_PREFERENCES_ERROR = "CommandPreferencesError";
+type PreferenceType = "extension" | "command";
+
+interface APIKeySource {
+  title: string;
+  url: string;
+}
+
+export class PreferenceError extends Error {
+  preferenceType: PreferenceType;
+  apiKeySource?: APIKeySource;
+  constructor(message: string, preferenceType: "extension" | "command", apiKeySource?: APIKeySource) {
+    super(message);
+    this.preferenceType = preferenceType;
+    this.apiKeySource = apiKeySource;
+  }
+}
 
 export function showCalendarNotFoundToast(missingCalendarNames: string[]): Promise<Toast> {
   return showToast({
@@ -22,31 +46,42 @@ export function showCalendarNotFoundToast(missingCalendarNames: string[]): Promi
   });
 }
 
-export function showInvalidExtensionPreferencesToast(
-  title: string,
-  message: string,
-  secondaryAction?: Toast.ActionOptions
-): Promise<Toast> {
-  return showToast({
-    style: Toast.Style.Failure,
-    title,
-    message,
-    primaryAction: {
+function getPrimaryAction(error: unknown): Toast.ActionOptions | undefined {
+  if (error instanceof PreferenceError) {
+    return {
       title: "Open Raycast Settings",
-      onAction: () => void openExtensionPreferences(),
-    },
-    secondaryAction,
-  });
+      onAction:
+        error.preferenceType === "extension"
+          ? (toast) => void Promise.all([toast.hide(), openExtensionPreferences()])
+          : (toast) => void Promise.all([toast.hide(), openCommandPreferences()]),
+    };
+  }
 }
 
-export function showInvalidCommandPreferencesToast(title: string, message: string): Promise<Toast> {
+function getSecondaryAction(error: unknown): Toast.ActionOptions | undefined {
+  if (error instanceof PreferenceError) {
+    const apiKeySource = error.apiKeySource;
+    if (apiKeySource) {
+      return {
+        title: `Open ${apiKeySource.title}`,
+        onAction: (toast) => void Promise.all([toast.hide(), open(apiKeySource.url)]),
+      };
+    }
+  }
+}
+
+export function showErrorToast(title: string, error: unknown): Promise<Toast> | Promise<void> {
+  const message = error instanceof Error ? error.message : undefined;
+
+  if (environment.commandMode !== "view" && environment.launchType === LaunchType.UserInitiated) {
+    return showHUD(title + (message ? `: ${message}` : ""));
+  }
+
   return showToast({
     style: Toast.Style.Failure,
     title,
     message,
-    primaryAction: {
-      title: "Open Raycast Settings",
-      onAction: () => void openCommandPreferences(),
-    },
+    primaryAction: getPrimaryAction(error),
+    secondaryAction: getSecondaryAction(error),
   });
 }

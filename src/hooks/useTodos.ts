@@ -1,7 +1,9 @@
+import { TodoistRequestError } from "@doist/todoist-api-typescript";
 import { useCachedPromise, useSQL } from "@raycast/utils";
 import { useMemo } from "react";
 import {
   activeSourceIds,
+  getInvalidTodoistAPITokenError,
   getRemindersDBPath,
   getRemindersTodoQuery,
   getThingsDBPath,
@@ -47,7 +49,11 @@ function useTodoist(filter: QueryFilter, { execute }: { execute: boolean }) {
   const { isLoading, data, error, revalidate } = useCachedPromise(getTodoistTodos, [filter], {
     execute,
   });
-  return { isLoadingTodoist: isLoading, todoistTodos: data, todoistError: error, revalidateTodoist: revalidate };
+
+  const todoistError =
+    error instanceof TodoistRequestError && error.isAuthenticationError() ? getInvalidTodoistAPITokenError() : error;
+
+  return { isLoadingTodoist: isLoading, todoistTodos: data, todoistError, revalidateTodoist: revalidate };
 }
 
 function toQueryFilters({ list, ids, interval }: UseTodosParams): Map<TodoSourceId, QueryFilter> {

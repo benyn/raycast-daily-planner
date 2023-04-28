@@ -16,7 +16,7 @@ import TodoListDropdown, { initialList } from "./components/TodoListDropdown";
 import TrackTimeActions, { stopTimer } from "./components/TrackTimeActions";
 import { findRunningTimeEntry } from "./helpers/actions";
 import { startOfToday, today, todayAndNextSevenDays } from "./helpers/datetime";
-import { showCalendarNotFoundToast } from "./helpers/errors";
+import { showCalendarNotFoundToast, showErrorToast } from "./helpers/errors";
 import { buildTodoList, isTaskBlockItem, isTodoItem, todoState } from "./helpers/todoList";
 import useCalendars from "./hooks/useCalendars";
 import useEvents from "./hooks/useEvents";
@@ -59,7 +59,7 @@ function APIKeyErrorView({ missingKey }: { missingKey: string }): JSX.Element {
 function TrackTime(stoppableRunningTimeEntry?: TimeEntry) {
   const [list, setList] = useState(initialList);
 
-  const { todos, isLoadingTodos, revalidateTodos } = useTodos({ list });
+  const { todos, todosError, isLoadingTodos, revalidateTodos } = useTodos({ list });
   const { todoGroups, tieredTodoGroups, isLoadingTodoGroups } = useTodoGroups();
   const { todoTags, isLoadingTodoTags } = useTodoTags();
   const [isLoadingBlocks, blocks, revalidateBlocks] = useEvents<Block>({
@@ -68,7 +68,7 @@ function TrackTime(stoppableRunningTimeEntry?: TimeEntry) {
     blocksOnly: true,
   });
 
-  const { timeEntries, isLoadingTimeEntries, showTimeEntriesErrorToast, revalidateTimeEntries, mutateTimeEntries } =
+  const { timeEntries, isLoadingTimeEntries, timeEntriesError, revalidateTimeEntries, mutateTimeEntries } =
     useTimeEntries(timeTrackingApp, {
       // A minimum of 12 hours' worth of time entries to prevent running timers from disappearing at midnight.
       // If too early, durations may be inflated for carryover to-dos. Logbook will not show prior days' time entries.
@@ -76,8 +76,12 @@ function TrackTime(stoppableRunningTimeEntry?: TimeEntry) {
       calendarName: timeEntryCalendar,
     });
 
-  if (showTimeEntriesErrorToast) {
-    void showTimeEntriesErrorToast();
+  if (todosError) {
+    void showErrorToast("Unable to fetch to-dos", todosError);
+  }
+
+  if (timeEntriesError) {
+    void showErrorToast("Unable to fetch time entries", timeEntriesError);
   }
 
   const sectionedTodoItems = useMemo(

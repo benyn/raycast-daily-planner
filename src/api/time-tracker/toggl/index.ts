@@ -1,16 +1,11 @@
-import { Me, Project, TimeEntry as TogglTimeEntry } from "./types";
+import { timeEntryIdStorage } from "..";
+import { PreferenceError } from "../../../helpers/errors";
 import { TimeEntry } from "../../../types";
+import { extractSourceIdedTodIdOrIds } from "../../todo-source";
+import { authFetch, CACHED_VALUE_ERROR, getWithDefaultWorkspaceId, getWithProjectId } from "../common";
 import { refreshableMapStorage, refreshableStorage } from "../refreshableStorage";
 import { TimeTracker } from "../types";
-import {
-  authFetch,
-  AUTHORIZATION_ERROR,
-  CACHED_VALUE_ERROR,
-  getWithDefaultWorkspaceId,
-  getWithProjectId,
-} from "../common";
-import { timeEntryIdStorage } from "..";
-import { extractSourceIdedTodIdOrIds } from "../../todo-source";
+import { Me, Project, TimeEntry as TogglTimeEntry } from "./types";
 
 const base64encode = (str: string) => Buffer.from(str).toString("base64");
 
@@ -19,21 +14,24 @@ export default function togglTimeTracker(apiToken: string): TimeTracker {
   const authHeader = { Authorization: `Basic ${base64encode(`${apiToken}:api_token`)}` };
   const api = authFetch(baseURL, authHeader, async (response) => {
     switch (response.status) {
-      case 403: {
+      case 403:
         // Either `apiToken` is invalid, or the cached workspace ID is an invalid NUMBER. Likely the former.
-        const error = new Error(
-          'Invalid Toggl API Token. Please copy the API Token from Toggl Track Profile and paste it into the "Time Tracking App API Key" field in Rayacst Settings.'
+        return new PreferenceError(
+          'Please enter a valid Toggl API key from your Toggl Track Profile into the "Time Tracking App API Key" in Raycast Settings.',
+          "extension",
+          {
+            title: "Toggle Track Profile",
+            url: "https://track.toggl.com/profile",
+          }
         );
-        error.name = AUTHORIZATION_ERROR;
-        throw error;
-      }
+
       default: {
         const body = (await response.json()) as string;
         if (body === "Missing or invalid workspace_id") {
           // 400 Bad Request - workspace ID is blank or a string. Shouldn't happen unless storage was corrupted.
           const error = new Error("Cached workspace ID is no longer valid and has been cleared. Please try again.");
           error.name = CACHED_VALUE_ERROR;
-          throw error;
+          return error;
         }
         if (body === "User cannot access the selected project") {
           // 400 Bad Request - cached project ID no longer valid, project likely has been deleted.
@@ -41,9 +39,9 @@ export default function togglTimeTracker(apiToken: string): TimeTracker {
             "Project no longer available (likely deleted or renamed) in Toggl. Please try again to create a new project."
           );
           error.name = CACHED_VALUE_ERROR;
-          throw error;
+          return error;
         }
-        throw new Error(`${response.status} ${response.statusText}: ${body}`);
+        return new Error(`${response.status} ${response.statusText}: ${body}`);
       }
     }
   });

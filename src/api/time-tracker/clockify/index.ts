@@ -1,29 +1,27 @@
-import { Project, Tag, TimeEntry as ClockifyTimeEntry, User } from "./types";
-import { TimeTracker } from "../types";
-import { refreshableMapStorage, refreshableStorage } from "../refreshableStorage";
-import {
-  authFetch,
-  AUTHORIZATION_ERROR,
-  CACHED_VALUE_ERROR,
-  getWithDefaultWorkspaceId,
-  getWithProjectIdAndTagIds,
-} from "../common";
-import { TimeEntry } from "../../../types";
 import { timeEntryIdStorage } from "..";
+import { PreferenceError } from "../../../helpers/errors";
+import { TimeEntry } from "../../../types";
 import { extractSourceIdedTodIdOrIds } from "../../todo-source";
+import { authFetch, CACHED_VALUE_ERROR, getWithDefaultWorkspaceId, getWithProjectIdAndTagIds } from "../common";
+import { refreshableMapStorage, refreshableStorage } from "../refreshableStorage";
+import { TimeTracker } from "../types";
+import { Project, Tag, TimeEntry as ClockifyTimeEntry, User } from "./types";
 
 export default function clockifyTimeTracker(apiKey: string): TimeTracker {
   const baseURL = "https://api.clockify.me/api/v1";
   const authHeader = { "X-Api-Key": apiKey };
   const api = authFetch(baseURL, authHeader, async (response) => {
     switch (response.status) {
-      case 401: {
-        const error = new Error(
-          'Invalid Clockify API Key. Please copy the API Key from Clockify Profile Settings and paste it into the "Time Tracking App API Key" field in Rayacst Settings.'
+      case 401:
+        return new PreferenceError(
+          'Please enter a valid Clockify API key from your Clockify Profile Settings into the "Time Tracking App API Key" in Raycast Settings.',
+          "extension",
+          {
+            title: "Clockify Profile Settings",
+            url: "https://app.clockify.me/user/settings",
+          }
         );
-        error.name = AUTHORIZATION_ERROR;
-        return error;
-      }
+
       case 403: {
         const error = new Error("Cached workspace ID is no longer valid and has been cleared. Please try again.");
         error.name = CACHED_VALUE_ERROR;

@@ -1,6 +1,14 @@
+import { TodoistRequestError } from "@doist/todoist-api-typescript";
 import { useCachedPromise, useSQL } from "@raycast/utils";
 import { useMemo } from "react";
-import { activeSourceIds, getThingsDBPath, getTodoistTags, tagsQuery, todoSourceId } from "../api/todo-source";
+import {
+  activeSourceIds,
+  getInvalidTodoistAPITokenError,
+  getThingsDBPath,
+  getTodoistTags,
+  tagsQuery,
+  todoSourceId,
+} from "../api/todo-source";
 import { TodoSourceId, TodoTag } from "../types";
 
 function useThingsTags({ execute }: { execute?: boolean }) {
@@ -16,8 +24,12 @@ function useTodoistTags({ execute }: { execute?: boolean }) {
   const { isLoading, data, error } = useCachedPromise(getTodoistTags, [], {
     execute: execute !== false,
   });
+
   const tags = useMemo(() => new Map(data), [data]);
-  return { isLoadingTodoist: isLoading, todoistTags: tags, todoistError: error };
+  const todoistError =
+    error instanceof TodoistRequestError && error.isAuthenticationError() ? getInvalidTodoistAPITokenError() : error;
+
+  return { isLoadingTodoist: isLoading, todoistTags: tags, todoistError };
 }
 
 export default function useTodoTags(options?: { execute?: boolean }): {

@@ -7,7 +7,7 @@ import TaskBlockTodoList from "./components/TaskBlockTodoList";
 import TodoList from "./components/TodoList";
 import TodoListDropdown, { initialList } from "./components/TodoListDropdown";
 import { restOfTodayAndNextSevenDays, today, todayAndNextSevenDays } from "./helpers/datetime";
-import { showCalendarNotFoundToast, showInvalidCommandPreferencesToast } from "./helpers/errors";
+import { showCalendarNotFoundToast, showErrorToast } from "./helpers/errors";
 import { getAvailableTimes, getOffHours } from "./helpers/interval";
 import { buildTodoList, isTaskBlockItem, todoState } from "./helpers/todoList";
 import useCalendars from "./hooks/useCalendars";
@@ -35,7 +35,7 @@ export const [offHours, prefError] = getOffHours(workingHoursStart, workingHours
 function BlockTime(isLoadingCalendars: boolean) {
   const [list, setList] = useState(initialList);
 
-  const { todos, isLoadingTodos, revalidateTodos } = useTodos({ list });
+  const { todos, todosError, isLoadingTodos, revalidateTodos } = useTodos({ list });
   const { todoGroups, tieredTodoGroups, isLoadingTodoGroups } = useTodoGroups();
   const { todoTags, isLoadingTodoTags } = useTodoTags();
   const [isLoadingBlocks, blocks, revalidateBlocks] = useEvents<Block>({
@@ -62,8 +62,13 @@ function BlockTime(isLoadingCalendars: boolean) {
   });
 
   const availableTimes = useMemo(() => getAvailableTimes(upcomingEvents, offHours), [upcomingEvents]);
+
   if (prefError) {
-    void showInvalidCommandPreferencesToast("Invalid Working Hours", prefError.message);
+    void showErrorToast("Invalid Working Hours", prefError);
+  }
+
+  if (todosError) {
+    void showErrorToast("Unable to fetch to-dos", todosError);
   }
 
   return (

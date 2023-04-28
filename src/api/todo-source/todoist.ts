@@ -1,9 +1,10 @@
-import { Task, TodoistApi, TodoistRequestError } from "@doist/todoist-api-typescript";
+import { Task, TodoistApi } from "@doist/todoist-api-typescript";
 import { Color, getApplications, getPreferenceValues, Icon } from "@raycast/api";
 import { randomUUID } from "crypto";
 import { format, formatISO, isSameDay, previousSunday } from "date-fns";
 import fetch from "node-fetch";
 import RemoveMarkdown from "remove-markdown";
+import { PreferenceError } from "../../helpers/errors";
 import { DetailedTodo, Subset, Todo, TodoCore, TodoGroup, TodoStatus, UniversalListKey } from "../../types";
 import { OptionalAction, QueryFilter, TodoFormData, TodoSourceList, UpdateTodoData } from "./types";
 
@@ -72,6 +73,34 @@ const universalListFilter: Record<UniversalListKey, string> = {
   upcoming: "due after: today",
 };
 
+function initializeAPI() {
+  if (todoistAPIToken === "") {
+    // Throw an error with an explicit message since the `TodoistRequestError` thrown when the API token is an empty
+    // string merely says "Request failed with status code 400" and its `isAuthenticationError()` is also `false`.
+    throw new PreferenceError(
+      "Please enter your Todoist API token in Raycast Settings. Your API token can be found in the Todoist app under Settings > Integrations > Developer.",
+      "extension",
+      {
+        title: "Todoist Settings",
+        url: "https://todoist.com/app/settings/integrations/developer",
+      }
+    );
+  }
+
+  return new TodoistApi(todoistAPIToken);
+}
+
+export function getInvalidAPITokenError(): PreferenceError {
+  return new PreferenceError(
+    "Please enter a valid Todoist API token in Raycast Settings. Your API token can be found in the Todoist app under Settings > Integrations > Developer.",
+    "extension",
+    {
+      title: "Todoist Settings",
+      url: "https://todoist.com/app/settings/integrations/developer",
+    }
+  );
+}
+
 async function isTodoistInstalled() {
   if (_isTodoistInstalled === null) {
     const applications = await getApplications();
@@ -92,6 +121,11 @@ async function fetchSyncAPI<T>(endpoint: string, method: string, body?: URLSearc
 
   if (!response.ok) {
     const { error, error_extra } = (await response.json()) as { error: string; error_extra: unknown };
+
+    if (response.status === 401 || response.status === 403) {
+      throw getInvalidAPITokenError();
+    }
+
     throw new Error(`${response.status} ${response.statusText}: ${error} ${JSON.stringify(error_extra)}`);
   }
 
@@ -222,7 +256,7 @@ function getIntervalFilter(start: Date, end: Date): string {
 
 export async function getTodos({ todoIds, listId, interval }: QueryFilter): Promise<Todo[]> {
   if (!api) {
-    api = new TodoistApi(todoistAPIToken);
+    api = initializeAPI();
   }
 
   const isAppInstalled = await isTodoistInstalled();
@@ -258,7 +292,7 @@ export async function getTodos({ todoIds, listId, interval }: QueryFilter): Prom
 
 export async function getDetailedTodo(id: string): Promise<DetailedTodo> {
   if (!api) {
-    api = new TodoistApi(todoistAPIToken);
+    api = initializeAPI();
   }
 
   const [task, isAppInstalled] = await Promise.all([api.getTask(id), isTodoistInstalled()]);
@@ -267,7 +301,7 @@ export async function getDetailedTodo(id: string): Promise<DetailedTodo> {
 
 export async function getProjects(): Promise<TodoGroup[]> {
   if (!api) {
-    api = new TodoistApi(todoistAPIToken);
+    api = initializeAPI();
   }
 
   const projects = await api.getProjects();
@@ -281,7 +315,7 @@ export async function getProjects(): Promise<TodoGroup[]> {
 
 export async function getTags(): Promise<[string, string][]> {
   if (!api) {
-    api = new TodoistApi(todoistAPIToken);
+    api = initializeAPI();
   }
 
   const tags = await api.getLabels();
@@ -302,7 +336,7 @@ export async function createTodo({
   notes,
 }: TodoFormData): Promise<Pick<TodoCore, "todoId" | "url">> {
   if (!api) {
-    api = new TodoistApi(todoistAPIToken);
+    api = initializeAPI();
   }
 
   const { id: todoId, url } = await api.addTask({
@@ -339,7 +373,7 @@ export async function updateTodo<T extends Partial<UpdateTodoData>>(
   { title, startDate, dueDate, priority, group, tags, notes }: Subset<Partial<UpdateTodoData>, T>
 ): Promise<void> {
   if (!api) {
-    api = new TodoistApi(todoistAPIToken);
+    api = initializeAPI();
   }
 
   const newDate = dueDate ?? startDate;
@@ -362,7 +396,7 @@ export async function updateTodo<T extends Partial<UpdateTodoData>>(
 
 export async function deleteTodo(todoId: string): Promise<void> {
   if (!api) {
-    api = new TodoistApi(todoistAPIToken);
+    api = initializeAPI();
   }
 
   await api.deleteTask(todoId);

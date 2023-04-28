@@ -1,11 +1,8 @@
-import { open, Toast } from "@raycast/api";
 import { MutatePromise, useCachedPromise, useSQL } from "@raycast/utils";
 import { useMemo } from "react";
 import { CALENDAR_DB, getCalItemQuery, toEpochBasedDates } from "../api/calendar-sql";
 import { timeTracker } from "../api/time-tracker";
-import { AUTHORIZATION_ERROR } from "../api/time-tracker/common";
 import { now } from "../helpers/datetime";
-import { showInvalidExtensionPreferencesToast } from "../helpers/errors";
 import { TimeEntry } from "../types";
 
 interface UseTimeEntryOption {
@@ -76,9 +73,8 @@ export default function useTimeEntries(
   app: string,
   filter: UseTimeEntryOption
 ): {
-  timeEntries: TimeEntry[] | undefined;
+  timeEntries: TimeEntry[] | null | undefined;
   timeEntriesError: Error | undefined;
-  showTimeEntriesErrorToast: (() => Promise<Toast>) | undefined;
   isLoadingTimeEntries: boolean;
   revalidateTimeEntries: (() => Promise<TimeEntry[]>) | (() => void) | undefined;
   mutateTimeEntries: MutatePromise<TimeEntry[] | undefined> | undefined;
@@ -92,23 +88,12 @@ export default function useTimeEntries(
     execute: filter.execute !== false && (app === toggl || app === clockify),
   });
 
-  const showErrorToast =
-    fetchedError && fetchedError instanceof Error && fetchedError.name === AUTHORIZATION_ERROR
-      ? () =>
-          showInvalidExtensionPreferencesToast(`Failed to fetch latest data from ${app}`, fetchedError.message, {
-            title: `Open ${app === "Toggl" ? "Toggle Track Profile" : "Clockify Profile Settings"} Page`,
-            onAction: () =>
-              void open(app === "Toggl" ? "https://track.toggl.com/profile" : "https://app.clockify.me/user/settings"),
-          })
-      : undefined;
-
   // Use `revalidateTimeEntries` for all 3 sources and `mutateTimeEntries` for Toggl and Clockify
   // - optimistic updates are preferred since it can take up to 4 sequential network API calls in the worst case.
   // - But, `useSQL` and `useCachedPromise` `MutatePromise` type parameters are incompatible. Plus, SQL is fast.
   return {
-    timeEntries: calData ?? fetched,
+    timeEntries: app === calendar && !filter.calendarName ? null : calData ?? fetched,
     timeEntriesError: calError ?? fetchedError,
-    showTimeEntriesErrorToast: showErrorToast,
     isLoadingTimeEntries:
       (app === calendar && isLoadingCal) || ((app === toggl || app === clockify) && isLoadingFetched),
     revalidateTimeEntries:

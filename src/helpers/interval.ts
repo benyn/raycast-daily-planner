@@ -3,7 +3,7 @@
 import { Constants, Culture, DateTimeRecognizer } from "@microsoft/recognizers-text-date-time";
 import { areIntervalsOverlapping, differenceInCalendarDays, maxTime } from "date-fns";
 import { CalendarEvent, DateInterval, TimeValueInterval } from "../types";
-import { COMMAND_PREFERENCES_ERROR } from "./errors";
+import { PreferenceError } from "./errors";
 
 interface TimeComponents {
   h: number;
@@ -89,31 +89,29 @@ export function getOffHours(
   // In addition to user errors, `workingHoursStart` and `workingHoursEnd` may be `undefined` if they are missing in
   // package.json or this module was erroneously called by a command other than "Block Time".
   if (!workingHoursStart) {
-    const error = new Error('"Start Working Hours at" is not specified.');
-    error.name = COMMAND_PREFERENCES_ERROR;
+    const error = new PreferenceError('"Working Hours Start Time" is not specified.', "command");
     return [undefined, error];
   }
   if (!workingHoursEnd) {
-    const error = new Error('"End Working Hours at" is not specified.');
-    error.name = COMMAND_PREFERENCES_ERROR;
+    const error = new PreferenceError('"Working Hours End Time" is not specified.', "command");
     return [undefined, error];
   }
 
   const startTime = parseTimeString(workingHoursStart);
   const endTime = parseTimeString(workingHoursEnd);
   if (!startTime) {
-    const error = new Error(`Unable to parse "${workingHoursStart}" into a time. Try "h:mm AM".`);
-    error.name = COMMAND_PREFERENCES_ERROR;
+    const error = new PreferenceError(`Unable to parse "${workingHoursStart}" into a time. Try "h:mm AM".`, "command");
     return [undefined, error];
   }
   if (!endTime) {
-    const error = new Error(`Unable to parse "${workingHoursEnd}" into a time. Try "h:mm PM".`);
-    error.name = COMMAND_PREFERENCES_ERROR;
+    const error = new PreferenceError(`Unable to parse "${workingHoursEnd}" into a time. Try "h:mm PM".`, "command");
     return [undefined, error];
   }
   if (isBefore(endTime, startTime)) {
-    const error = new Error('"End Working Hours at" must precede or match "Start Working Hours at".');
-    error.name = COMMAND_PREFERENCES_ERROR;
+    const error = new PreferenceError(
+      '"Working Hours End Time" must precede or match "Working Hours Start Time".',
+      "command"
+    );
     return [undefined, error];
   }
 

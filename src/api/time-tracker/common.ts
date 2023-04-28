@@ -4,7 +4,6 @@ import { Project as ClockifyProject, Tag as ClockifyTag } from "./clockify/types
 import { RefreshableMapStorage, RefreshableStorage } from "./refreshableStorage";
 import { Project as TogglProject } from "./toggl/types";
 
-export const AUTHORIZATION_ERROR = "AuthorizationError";
 export const CACHED_VALUE_ERROR = "CachedValueError";
 
 export function authFetch(

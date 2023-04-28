@@ -4,6 +4,7 @@ import { useState } from "react";
 import { activeSourceIds } from "./api/todo-source";
 import ReportingPeriodDropdown, { initialReportingPeriod } from "./components/ReportingPeriodDropdown";
 import ReportList from "./components/ReportList";
+import { showErrorToast } from "./helpers/errors";
 import {
   buildReport,
   reportGroupKey,
@@ -50,7 +51,7 @@ export default function Command() {
   );
 
   const { interval } = reportingPeriod;
-  const { todos, isLoadingTodos } = useTodos({ interval });
+  const { todos, todosError, isLoadingTodos } = useTodos({ interval });
   const { todoGroups, tieredTodoGroups, isLoadingTodoGroups } = useTodoGroups();
   const { todoTags, isLoadingTodoTags } = useTodoTags();
   const [isLoadingEvents, events] = useEvents<CalendarEventForReport>({
@@ -58,14 +59,20 @@ export default function Command() {
     interval,
     forReport: true,
   });
-  const { timeEntries, isLoadingTimeEntries, showTimeEntriesErrorToast } = useTimeEntries(timeTrackingApp, {
+  const { timeEntries, isLoadingTimeEntries, timeEntriesError } = useTimeEntries(timeTrackingApp, {
     from: new Date(interval.start),
     to: new Date(interval.end),
     calendarName: timeEntryCalendar,
   });
 
-  if (showTimeEntriesErrorToast) {
-    void showTimeEntriesErrorToast();
+  if (todosError) {
+    void showErrorToast("Unable to fetch to-dos", todosError);
+  }
+
+  console.log("TIME ENTRIEs", timeEntries);
+
+  if (timeEntriesError) {
+    void showErrorToast("Unable to fetch time entries", timeEntriesError);
   }
 
   const report = buildReport(todos, todoGroups, todoTags, events, timeEntries, {

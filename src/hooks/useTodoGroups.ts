@@ -1,7 +1,9 @@
+import { TodoistRequestError } from "@doist/todoist-api-typescript";
 import { useCachedPromise, useSQL } from "@raycast/utils";
 import { useMemo } from "react";
 import {
   activeSourceIds,
+  getInvalidTodoistAPITokenError,
   getRemindersDBPath,
   getThingsDBPath,
   getTodoistProjects,
@@ -32,7 +34,11 @@ function useTodoistProjects({ execute }: { execute?: boolean }) {
   const { isLoading, data, error } = useCachedPromise(getTodoistProjects, [], {
     execute: execute !== false,
   });
-  return { isLoadingTodoist: isLoading, todoistData: data, todoistError: error };
+
+  const todoistError =
+    error instanceof TodoistRequestError && error.isAuthenticationError() ? getInvalidTodoistAPITokenError() : error;
+
+  return { isLoadingTodoist: isLoading, todoistData: data, todoistError };
 }
 
 function getTieredTodoGroups(todoGroups: TodoGroup[] | undefined, sourceId: TodoSourceId): TodoGroup[] {
