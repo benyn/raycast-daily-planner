@@ -469,6 +469,7 @@ function toTimeSlots(
     }
     return splitIntervals(targetDateFreeTimeIntervals, duration);
   };
+
   const findFreeTimesWithDateRange = ({ start, end }: PeriodValue, durations: number[]): DateInterval[] => {
     if (start && end) {
       // "wed - fri"
@@ -491,6 +492,7 @@ function toTimeSlots(
     }
     return [];
   };
+
   const toFullDayIntervals = ({ start, end }: PeriodValue): DateInterval => {
     // At least one of the two input parameters will be truthy.
     return {
