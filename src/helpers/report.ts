@@ -208,7 +208,7 @@ const eventIcon: Record<EventGroupKey, Image.Source> = {
 };
 
 const eventGroup: Record<"other" | EventGroupKey, GroupReportItem> = {
-  other: Object.freeze({ id: "other", title: "Other", sortValue: Number.MAX_SAFE_INTEGER, icon: icon.other }),
+  other: Object.freeze({ id: "other", title: "Other", icon: icon.other }),
   openTaskBlocks: Object.freeze({ id: "open-task-blocks", title: "Open Task Blocks", icon: eventIcon.openTaskBlocks }),
   breakBlocks: Object.freeze({ id: "break-blocks", title: "Break Blocks", icon: eventIcon.breakBlocks }),
   organizedEvents: Object.freeze({ id: "meeting", title: "Meetings", icon: eventIcon.organizedEvents }),
