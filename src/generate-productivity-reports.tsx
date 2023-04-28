@@ -69,8 +69,6 @@ export default function Command() {
     void showErrorToast("Unable to fetch to-dos", todosError);
   }
 
-  console.log("TIME ENTRIEs", timeEntries);
-
   if (timeEntriesError) {
     void showErrorToast("Unable to fetch time entries", timeEntriesError);
   }
