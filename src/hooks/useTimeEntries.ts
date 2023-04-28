@@ -2,7 +2,6 @@ import { MutatePromise, useCachedPromise, useSQL } from "@raycast/utils";
 import { useMemo } from "react";
 import { CALENDAR_DB, getCalItemQuery, toEpochBasedDates } from "../api/calendar-sql";
 import { timeTracker } from "../api/time-tracker";
-import { now } from "../helpers/datetime";
 import { TimeEntry } from "../types";
 
 interface UseTimeEntryOption {
@@ -19,6 +18,8 @@ const calendar = "calendar";
 const toggl = "Toggl";
 const clockify = "Clockify";
 
+const getNextMinute = () => Math.ceil(Date.now() / 60_000) * 60_000;
+
 function useCalendarTimeEntries(
   { from, to, calendarName, url, runningTimerOnly }: Omit<UseTimeEntryOption, "description">,
   options: { execute: boolean }
@@ -28,7 +29,7 @@ function useCalendarTimeEntries(
         calendars: [calendarName],
         url,
         runningTimerOnly,
-        interval: from ? { start: from.getTime(), end: to?.getTime() ?? now.getTime() } : undefined,
+        interval: from ? { start: from.getTime(), end: to?.getTime() ?? getNextMinute() } : undefined,
         blocksOnly: true,
         asTimeEntries: true,
       })
