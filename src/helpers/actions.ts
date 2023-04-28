@@ -50,7 +50,7 @@ export async function callFunctionShowingToasts<T>({
   }
 }
 
-export function findRunningTimeEntry(timeEntries: TimeEntry[] | undefined): TimeEntry | undefined {
+export function findRunningTimeEntry(timeEntries: TimeEntry[] | null | undefined): TimeEntry | undefined {
   return timeEntries?.find(({ end }) => !end);
 }
 

@@ -11,6 +11,7 @@ import {
   formatRelativeTimeInterval,
   restOfTodayAndNextSevenDays,
 } from "../helpers/datetime";
+import { showErrorToast } from "../helpers/errors";
 import { getAvailableTimes } from "../helpers/interval";
 import { sumDuration, TodoReportItem } from "../helpers/report";
 import { buildTodoItem, TodoItem } from "../helpers/todoList";
@@ -81,14 +82,14 @@ export default function TodoDetail({
     execute: offHours !== undefined,
   });
 
-  const { timeEntries, isLoadingTimeEntries, showTimeEntriesErrorToast, revalidateTimeEntries, mutateTimeEntries } =
+  const { timeEntries, timeEntriesError, isLoadingTimeEntries, revalidateTimeEntries, mutateTimeEntries } =
     useTimeEntries(timeTrackingApp, {
       calendarName: timeEntryCalendar,
       url: listTodoItem.url,
       description: listTodoItem.title,
     });
-  if (showTimeEntriesErrorToast) {
-    void showTimeEntriesErrorToast();
+  if (timeEntriesError) {
+    void showErrorToast("Unable to fetch time entries", timeEntriesError);
   }
 
   const todoItem = buildTodoItem(todo, tieredTodoGroups, todoTags, blocks, timeEntries);
