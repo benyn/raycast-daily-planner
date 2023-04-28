@@ -232,21 +232,19 @@ export function CreateTodoForm({
         )}
       </Form.Dropdown>
 
-      <Form.TagPicker
-        title="Tags"
-        info={
-          todoTags && todoTags.size > 0
-            ? undefined
-            : `No tags in your ${todoSourceApplicationName[primaryTodoSourceId]} database`
-        }
-        {...itemProps.tagStrings}
-      >
-        {tags
-          ? Array.from(tags).map(([id, name]) => (
-              <Form.TagPicker.Item key={id} title={name} value={JSON.stringify({ id, name })} />
-            ))
-          : null}
-      </Form.TagPicker>
+      {tags ? (
+        <Form.TagPicker
+          title="Tags"
+          info={
+            tags.size === 0 ? `No tags in your ${todoSourceApplicationName[primaryTodoSourceId]} database` : undefined
+          }
+          {...itemProps.tagStrings}
+        >
+          {Array.from(tags).map(([id, name]) => (
+            <Form.TagPicker.Item key={id} title={name} value={JSON.stringify({ id, name })} />
+          ))}
+        </Form.TagPicker>
+      ) : null}
 
       <Form.TextArea title="Notes" {...itemProps.notes} />
     </Form>
