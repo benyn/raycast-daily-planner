@@ -206,24 +206,28 @@ function roundUpToNearestMinutes(timeValue: number, nearestTo: number): number {
 // Divides the given time value intervals into an ordered list of at most ~20 subintervals of the given duration. The
 // subintervals overlap if some of the given `intervals` are shorter than (2 * `duration`) and longer than
 // (`duration` + 5 minutes).
-function splitIntervals(intervals: TimeValueInterval[] | undefined, duration: number): DateInterval[] {
+function splitIntervals(
+  intervals: TimeValueInterval[] | DateInterval[] | undefined,
+  duration: number,
+  earliestPossibleStart?: number
+): DateInterval[] {
   if (!intervals?.length || duration === 0) {
     return [];
   }
 
-  // The first possible start time is the next multiple-of-5 minute. Use the time this to-do item was selected, not
-  // `now` from datetime.ts, which is when the command was initialized and can be a few minutes ago.
-  const earliestPossibleStart = roundUpToNearestMinutes(Date.now(), 5);
   const fiveMinutes = 300_000;
   const upperLimit = 20;
   const freeTimes: DateInterval[] = [];
 
-  for (const { start: originalStart, end } of intervals) {
-    if (end <= earliestPossibleStart) {
+  for (const interval of intervals) {
+    const originalStart = typeof interval.start === "number" ? interval.start : interval.start.getTime();
+    const end = typeof interval.end === "number" ? interval.end : interval.end.getTime();
+
+    if (earliestPossibleStart && end <= earliestPossibleStart) {
       continue;
     }
     // Ensure the block's start time is in the future (necessary only for the first element of `availableTimes`).
-    const start = Math.max(originalStart, earliestPossibleStart);
+    const start = earliestPossibleStart ? Math.max(originalStart, earliestPossibleStart) : originalStart;
     if (end - start < duration) {
       continue;
     }
@@ -356,26 +360,30 @@ function toTimeSlots(
   { preferredDuration, preferFullDay }: { preferredDuration?: number; preferFullDay?: boolean }
 ): DateInterval[] {
   // `datetime` & `datetimerange` helper functions
-  const toDateTimeIntervals = ({ start: sStr, end: eStr }: PeriodValue, durations?: number[]): DateInterval[] => {
-    if (sStr && eStr) {
-      return [{ start: new Date(sStr), end: new Date(eStr) }];
+  const toDateTimeIntervals = ({ start: lhs, end: rhs }: PeriodValue, durations?: number[]): DateInterval[] => {
+    if (lhs && rhs) {
+      const lhsDate = new Date(lhs);
+      const rhsDate = new Date(rhs);
+      // Ensure `start` <= `end` (Microsoft DateTimeRecognizer doesn't guarantee it, e.g., for "tomorrow 9-8")
+      return lhsDate < rhsDate ? [{ start: lhsDate, end: rhsDate }] : [{ start: rhsDate, end: lhsDate }];
     }
-    if (sStr) {
+    if (lhs) {
       // "1 hour starting in 45 mins"
-      const start = new Date(sStr);
+      const start = new Date(lhs);
       return durations
         ? durations.map((duration) => ({ start, end: new Date(start.getTime() + duration) }))
         : [{ start, end: new Date(start.getFullYear(), start.getMonth(), start.getDate(), 23, 59, 59, 999) }];
     }
-    if (eStr) {
+    if (rhs) {
       // "2 hours until noon tmr"
-      const end = new Date(eStr);
+      const end = new Date(rhs);
       return durations
         ? durations.map((duration) => ({ start: new Date(end.getTime() - duration), end }))
         : [{ start: new Date(end.getFullYear(), end.getMonth(), end.getDate(), 0, 0, 0, 0), end }];
     }
     return [];
   };
+
   const compareOverlappingFreeIntervals = (a: DateInterval, b: DateInterval) => {
     // Show results that overlap with an earlier free time interval before those fall within a later one.
     // Percentage doesn't matter as long as there's an overlap. Penalize those outside the free time intervals.
@@ -386,10 +394,11 @@ function toTimeSlots(
 
   // `time` & `timerange` helper functions
   const findTimeIntervals = (
-    from: TimeComponents,
-    to: TimeComponents,
+    lhs: TimeComponents,
+    rhs: TimeComponents,
     useFromForFallbackReference: boolean
   ): DateInterval[] => {
+    const [from, to] = isBefore(lhs, rhs) ? [lhs, rhs] : [rhs, lhs];
     const duration = differenceInMilliseconds(to, from);
     const freeTimes: DateInterval[] = [];
     for (const interval of searchIntervals) {
@@ -419,23 +428,28 @@ function toTimeSlots(
     }
     return freeTimes;
   };
-  const findTimeIntervalsWithFallbackDurations = ({ start, end }: PeriodValue, durations: number[]): DateInterval[] => {
+
+  const findTimeIntervalsWithDurations = ({ start, end }: PeriodValue, durations?: number[]): DateInterval[] => {
     const startTime = parseHHmmss(start);
     const endTime = parseHHmmss(end);
     if (startTime && endTime) {
-      // "early morning or late afternoon"
-      return findTimeIntervals(startTime, endTime, true);
+      const intervals = findTimeIntervals(startTime, endTime, true);
+      // "45 minutes between 9-11am" (former) or "early morning or late afternoon" (latter)
+      return durations?.length ? durations.flatMap((duration) => splitIntervals(intervals, duration)) : intervals;
     }
-    if (startTime) {
-      // "2h from 1p"
-      return durations.flatMap((duration) => findTimeIntervals(startTime, addDuration(startTime, duration), true));
-    }
-    if (endTime) {
-      // "2 hours until noon"
-      return durations.flatMap((duration) => findTimeIntervals(addDuration(endTime, -duration), endTime, false));
+    if (durations) {
+      if (startTime) {
+        // "2h from 1p"
+        return durations.flatMap((duration) => findTimeIntervals(startTime, addDuration(startTime, duration), true));
+      }
+      if (endTime) {
+        // "2 hours until noon"
+        return durations.flatMap((duration) => findTimeIntervals(addDuration(endTime, -duration), endTime, false));
+      }
     }
     return [];
   };
+
   const findSameDayTimeIntervals = ({ start, end }: PeriodValue): DateInterval[] => {
     const startTime: TimeComponents = parseHHmmss(start) ?? { h: 0, m: 0, s: 0, ms: 0 };
     const endTime: TimeComponents = parseHHmmss(end) ?? { h: 23, m: 59, s: 59, ms: 999 };
@@ -484,24 +498,30 @@ function toTimeSlots(
       end: new Date((end ?? start ?? "2050-12-31") + "T23:59:59.999"),
     };
   };
+
   const startDateAscending = (a: DateInterval, b: DateInterval) => a.start.getTime() - b.start.getTime();
   const startDateDescending = (a: DateInterval, b: DateInterval) => b.start.getTime() - a.start.getTime();
 
   // Durations (if missing, `defaultDuration`) are used to fill in missing start or end date/times.
-  const parsedDurations = modelResults.get(Constants.SYS_DATETIME_DURATION)?.flatMap((d) => parseDuration(d) ?? []);
-  const durations =
-    parsedDurations && parsedDurations.length > 0
-      ? [...new Set(parsedDurations)]
-      : [preferredDuration ?? fallbackDuration];
+  const durationStrings = modelResults.get(Constants.SYS_DATETIME_DURATION);
+  const parsedDurations = durationStrings?.length
+    ? [...new Set(durationStrings.flatMap((d) => parseDuration(d) ?? []))]
+    : undefined;
+  const durations = parsedDurations ?? [preferredDuration ?? fallbackDuration];
 
   // Start processing model results. Range results first.
   const datetimeranges = modelResults.get(periodSubType[Constants.SYS_DATETIME_DATETIMEPERIOD]);
   if (datetimeranges) {
-    return datetimeranges
+    const intervals = datetimeranges
       .flatMap((datetimerange) =>
         toDateTimeIntervals(datetimerange, preferFullDay && !parsedDurations ? undefined : durations)
       )
       .sort(compareOverlappingFreeIntervals);
+
+    // If durations are given, e.g., "45 minutes tomorrow morning" split the intervals.
+    return parsedDurations?.length
+      ? parsedDurations.flatMap((duration) => splitIntervals(intervals, duration))
+      : intervals;
   }
 
   const timeranges = modelResults.get(periodSubType[Constants.SYS_DATETIME_TIMEPERIOD]);
@@ -523,9 +543,12 @@ function toTimeSlots(
         )
         .sort(compareOverlappingFreeIntervals);
     }
+
     return preferFullDay && !parsedDurations
       ? timeranges.flatMap((timerange) => findSameDayTimeIntervals(timerange).sort(startDateDescending))
-      : timeranges.flatMap((timerange) => findTimeIntervalsWithFallbackDurations(timerange, durations));
+      : timeranges
+          .flatMap((timerange) => findTimeIntervalsWithDurations(timerange, parsedDurations))
+          .sort(startDateAscending);
   }
 
   const dateranges = modelResults.get(periodSubType[Constants.SYS_DATETIME_DATEPERIOD]);
@@ -549,9 +572,7 @@ function toTimeSlots(
   if (timeStrs) {
     return preferFullDay && !parsedDurations
       ? timeStrs.flatMap((timeStr) => findSameDayTimeIntervals({ start: timeStr, end: undefined }))
-      : timeStrs.flatMap((timeStr) =>
-          findTimeIntervalsWithFallbackDurations({ start: timeStr, end: undefined }, durations)
-        );
+      : timeStrs.flatMap((timeStr) => findTimeIntervalsWithDurations({ start: timeStr, end: undefined }, durations));
   }
 
   const dateStrs = modelResults.get(Constants.SYS_DATETIME_DATE);
@@ -641,7 +662,10 @@ export function findTimeSlots(
   }
 
   const duration = getParsedDuration(modelResults);
-  const timeSlots = splitIntervals(combinedAvailableTimes, duration ?? preferredDuration);
+  // The first possible start time is the next multiple-of-5 minute. Use the time this to-do item was selected, not
+  // `now` from datetime.ts, which is when the command was initialized and can be a few minutes ago.
+  const earliestPossibleStart = roundUpToNearestMinutes(Date.now(), 5);
+  const timeSlots = splitIntervals(combinedAvailableTimes, duration ?? preferredDuration, earliestPossibleStart);
   if (currentInterval) {
     for (let i = timeSlots.length - 1; i >= 0; i--) {
       const { start, end } = timeSlots[i];
