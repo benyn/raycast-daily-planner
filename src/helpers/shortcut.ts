@@ -29,7 +29,7 @@ type BlockAction =
   | "showTaskBlockTodos"
   | "openInCalendar";
 
-type TrackAction = "startTimer" | "stopTimer" | "pauseTimer";
+type TrackAction = "startTimer" | "stopTimer" | "stopTimerAndCompleteToDo" | "pauseTimer";
 
 const unsupportedAction: Keyboard.Shortcut = { modifiers: ["shift", "ctrl", "opt", "cmd"], key: "»" };
 
@@ -119,6 +119,7 @@ const blockActionShortcuts: Record<BlockAction, Keyboard.Shortcut> = {
 const trackActionShortcuts: Record<TrackAction, Keyboard.Shortcut> = {
   startTimer: { modifiers: ["shift", "cmd"], key: "s" },
   stopTimer: { modifiers: ["shift", "cmd"], key: "s" },
+  stopTimerAndCompleteToDo: { modifiers: ["shift", "cmd"], key: "d" },
   pauseTimer: { modifiers: ["shift", "cmd"], key: "p" }, // conflicts with "setPriority", but these two commands never appear together.
 };
 

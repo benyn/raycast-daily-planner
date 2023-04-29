@@ -156,7 +156,7 @@ export function StopTimerAction(props: StopTimerProps): JSX.Element {
     <Action
       icon={Icon.Stop}
       title={props.timeEntryTodoItem ? "Stop Timer & Complete Todo" : "Stop Timer"}
-      shortcut={shortcut.stopTimer}
+      shortcut={props.timeEntryTodoItem ? shortcut.stopTimerAndCompleteToDo : shortcut.stopTimer}
       onAction={() => void stopTimer(props)}
     />
   );
