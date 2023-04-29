@@ -132,7 +132,8 @@ export function formatDuration(
 
   switch (style) {
     case "time": {
-      const addLeadingZero = (value: number): string => (value < 10 ? "0" + value.toString() : value.toString());
+      const addLeadingZero = (value: number): string =>
+        value >= 10 ? value.toString() : value >= 0 ? "0" + value.toString() : Math.abs(value).toString();
       const hourMinute = h.toString() + ":" + addLeadingZero(m);
       return showSeconds ? hourMinute + ":" + addLeadingZero(s) : hourMinute;
     }
