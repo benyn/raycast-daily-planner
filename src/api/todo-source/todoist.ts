@@ -370,7 +370,7 @@ async function move(id: string, projectId: string) {
 
 export async function updateTodo<T extends Partial<UpdateTodoData>>(
   todoId: string,
-  { title, startDate, dueDate, priority, group, tags, notes }: Subset<Partial<UpdateTodoData>, T>
+  { title, status, startDate, dueDate, priority, group, tags, notes }: Subset<Partial<UpdateTodoData>, T>
 ): Promise<void> {
   if (!api) {
     api = initializeAPI();
@@ -388,6 +388,12 @@ export async function updateTodo<T extends Partial<UpdateTodoData>>(
           labels: tags?.map(({ name }) => name),
           priority: priority,
         })
+      : Promise.resolve(),
+
+    status !== undefined
+      ? status === TodoStatus.open
+        ? api.reopenTask(todoId)
+        : api.closeTask(todoId)
       : Promise.resolve(),
 
     group ? move(todoId, group.id) : Promise.resolve(),
