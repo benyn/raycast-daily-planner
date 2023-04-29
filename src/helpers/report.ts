@@ -26,12 +26,12 @@ import { groupToMap, groupToMapFn } from "./group";
 const { timeTrackingApp } = getPreferenceValues<{ timeTrackingApp: string }>();
 
 export const reportGroupKey = {
-  itemStatus: "Item Status",
-  todoGroup: "Project/Area",
-  tag: "Tag",
-  priority: "Priority",
-  completionDate: "Completion Date",
-  taskBlock: "Task Block",
+  itemStatus: { title: "Item Status", key: "s" },
+  todoGroup: { title: "Project/Area", key: "p" },
+  tag: { title: "Tag", key: "t" },
+  priority: { title: "Priority", key: "p" },
+  completionDate: { title: "Completion Date", key: "c" },
+  taskBlock: { title: "Task Block", key: "b" },
 } as const;
 
 export type ReportGroupKey = (typeof reportGroupKey)[keyof typeof reportGroupKey];
@@ -56,20 +56,20 @@ export const reportItemStatus = {
 export type ReportItemStatus = (typeof reportItemStatus)[keyof typeof reportItemStatus];
 
 interface ReportItemStatusGroup {
-  readonly type: Extract<ReportGroupKey, "Item Status">;
+  readonly type: (typeof reportGroupKey.itemStatus)["title"];
   readonly id: ReportItemStatus;
 }
 
 interface SourceIdedGroup<T extends string | number> {
   readonly type: T extends string
-    ? Extract<ReportGroupKey, "Project/Area" | "Tag"> | TodoGroupType
-    : Extract<ReportGroupKey, "Priority">;
+    ? (typeof reportGroupKey.todoGroup)["title"] | (typeof reportGroupKey.tag)["title"] | TodoGroupType
+    : (typeof reportGroupKey.priority)["title"];
   readonly sourceId: TodoSourceId;
   readonly id: T;
 }
 
 interface SourceAgnosticGroup {
-  readonly type: Extract<ReportGroupKey, "Completion Date" | "Task Block"> | "event";
+  readonly type: (typeof reportGroupKey.completionDate)["title"] | (typeof reportGroupKey.taskBlock)["title"] | "event";
   readonly id: string;
 }
 
@@ -126,7 +126,7 @@ const leafType = {
 type LeafReportItemType = (typeof leafType)[keyof typeof leafType];
 
 export interface GroupReportItem extends ReportItem {
-  readonly type?: ReportGroupKey | Capitalize<TodoGroupType>;
+  readonly type?: ReportGroupKey["title"] | Capitalize<TodoGroupType>;
   readonly sourceId?: TodoSourceId;
   readonly groupType?: TodoGroupType | "tag";
   readonly icon?: Image.Source;
@@ -137,12 +137,12 @@ export interface GroupReportItem extends ReportItem {
 }
 
 export const reportItemSortDescriptor = {
-  todoTimestamp: { title: "To-Do Completion Time", ascending: true }, // in ascending order, default from `useSQL`
-  blockedDuration: { title: "Total Time Blocked", ascending: false }, // in descending order
-  trackedDuration: { title: "Total Time Tracked", ascending: false }, // in descending order
-  percentTracked: { title: "% Tracked / Blocked", ascending: false }, // in descending order
-  firstBlockStartTime: { title: "Block Start Time", ascending: true }, // in ascending order
-  firstTimeEntryStartTime: { title: "Time Entry Start Time", ascending: true }, // in ascending order
+  todoTimestamp: { title: "To-Do Completion Time", ascending: true, key: "c" }, //, default from `useSQL`
+  blockedDuration: { title: "Total Time Blocked", ascending: false, key: "b" },
+  trackedDuration: { title: "Total Time Tracked", ascending: false, key: "t" },
+  percentTracked: { title: "% Tracked / Blocked", ascending: false, key: "p" },
+  firstBlockStartTime: { title: "Block Start Time", ascending: true, key: "s" },
+  firstTimeEntryStartTime: { title: "Time Entry Start Time", ascending: true, key: "e" },
 } as const;
 
 export type ReportItemSortDescriptor = (typeof reportItemSortDescriptor)[keyof typeof reportItemSortDescriptor];
@@ -647,17 +647,17 @@ function toTodoReportItem(
   const getGroupOrGroups = (groupKey: ReportGroupKey): Group | Group[] | undefined => {
     switch (groupKey) {
       case reportGroupKey.itemStatus:
-        return { type: groupKey, id: itemStatus };
+        return { type: groupKey.title, id: itemStatus };
 
       case reportGroupKey.todoGroup:
         return group
           ? { type: group.type, sourceId, id: group.id }
-          : { type: groupKey, sourceId, id: "No Project or Area" };
+          : { type: groupKey.title, sourceId, id: "No Project or Area" };
 
       case reportGroupKey.tag:
         return (
-          tagIds?.map<SourceIdedGroup<string>>((id) => ({ type: groupKey, sourceId, id })) ?? {
-            type: groupKey,
+          tagIds?.map<SourceIdedGroup<string>>((id) => ({ type: groupKey.title, sourceId, id })) ?? {
+            type: groupKey.title,
             sourceId,
             id: "No Tag",
           }
@@ -667,14 +667,14 @@ function toTodoReportItem(
         if (priority) {
           const priorityData = priorityNameAndColor[sourceId]?.[priority];
           if (priorityData) {
-            return { type: groupKey, sourceId, id: priority };
+            return { type: groupKey.title, sourceId, id: priority };
           }
         }
-        return { type: groupKey, sourceId, id: -1 };
+        return { type: groupKey.title, sourceId, id: -1 };
 
       case reportGroupKey.completionDate:
         return {
-          type: groupKey,
+          type: groupKey.title,
           id: completionDate ? "Completed " + formatRelativeDateOnly(completionDate) : "Incomplete",
         };
 
@@ -683,7 +683,7 @@ function toTodoReportItem(
           return Array.from(
             new Set(
               allocatedTaskBlocks.map<Group>(({ item: { title } }) => ({
-                type: groupKey,
+                type: groupKey.title,
                 id: title,
               }))
             )
@@ -826,10 +826,8 @@ function updatePercentTracked(item: ReportItem, alsoUpdateSortValue?: boolean): 
   }
 }
 
-function hasSourceId<T extends string | number>(
-  group: Group
-): group is SourceIdedGroup<string> | SourceIdedGroup<number> {
-  return (group as SourceIdedGroup<T>).sourceId !== undefined;
+function hasSourceId(group: Group): group is SourceIdedGroup<string> | SourceIdedGroup<number> {
+  return (group as SourceIdedGroup<string> | SourceIdedGroup<number>).sourceId !== undefined;
 }
 
 function groupChildren(
@@ -849,24 +847,27 @@ function groupChildren(
         case "area":
         case "project":
         case "list": {
-          const groupTitle = todoGroupTitles?.get(sourceId)?.get(type)?.get(id);
+          // Group projects from different to-do apps together. To separate, use `${sourceId}${type}${id}` for `id`.
+          const groupName = todoGroupTitles?.get(sourceId)?.get(type)?.get(id) ?? id;
           return {
             type: (type.charAt(0).toUpperCase() + type.slice(1)) as Capitalize<TodoGroupType>,
-            id: `${sourceId}${type}${id}`,
-            title: groupTitle ?? id,
+            id: groupName,
+            title: groupName,
             icon: icon[type],
           };
         }
 
-        case reportGroupKey.todoGroup:
+        case reportGroupKey.todoGroup.title:
+          // Relevant for Things only (every Reminders and Todoist task belongs to a List/Project.)
           return { type, id: `${sourceId}${id}`, title: "No Project or Area", icon: Icon.Dot };
 
-        case reportGroupKey.tag: {
-          return { type, id: `${sourceId}${id}`, title: todoTags?.get(sourceId)?.get(id) ?? id, icon: Icon.Tag };
+        case reportGroupKey.tag.title: {
+          // Group tags from different to-do apps together. To separate, use `${sourceId}${id}` for `id`.
+          const tagName = todoTags?.get(sourceId)?.get(id) ?? id;
+          return { type, id: tagName, title: tagName, icon: Icon.Tag };
         }
 
-        case reportGroupKey.priority: {
-          if (typeof id !== "number") throw new Error("Invalid Priority Report Group ID Type " + typeof id);
+        case reportGroupKey.priority.title: {
           const priority = priorityNameAndColor[sourceId]?.[id];
           return {
             type,
@@ -880,13 +881,13 @@ function groupChildren(
 
     const { type, id } = group;
     switch (type) {
-      case reportGroupKey.itemStatus:
+      case reportGroupKey.itemStatus.title:
         return { type, id, title: id, sortValue: Object.values(reportItemStatus).indexOf(id) };
 
-      case reportGroupKey.completionDate:
+      case reportGroupKey.completionDate.title:
         return { type, id, title: id, icon: id === "Incomplete" ? icon.incomplete : undefined };
 
-      case reportGroupKey.taskBlock:
+      case reportGroupKey.taskBlock.title:
         return { type, id, title: id, icon: eventIcon.openTaskBlocks };
 
       case "event":
@@ -896,13 +897,13 @@ function groupChildren(
 
   const groupReportItems = new Map<Group["id"], GroupReportItem>();
   const upsert = (group: Group, item: GroupReportItem | TodoReportItem | EventReportItem): void => {
-    const groupReportItem = groupReportItems.get(group.id);
-    if (!groupReportItem) {
-      const newGroupReportItem = toGroupReportItem(group);
-      addItem(newGroupReportItem, item);
-      groupReportItems.set(group.id, newGroupReportItem);
+    const groupReportItem = toGroupReportItem(group);
+    const existing = groupReportItems.get(groupReportItem.id);
+    if (!existing) {
+      addItem(groupReportItem, item);
+      groupReportItems.set(groupReportItem.id, groupReportItem);
     } else {
-      addItem(groupReportItem, item, sortValueReducer !== "percentTracked" ? sortValueReducer : undefined);
+      addItem(existing, item, sortValueReducer !== "percentTracked" ? sortValueReducer : undefined);
     }
   };
 

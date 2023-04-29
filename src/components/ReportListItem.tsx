@@ -16,6 +16,7 @@ import {
   TodoReportItem,
 } from "../helpers/report";
 import { getRelativeScaleIcon, getReportItemIcon, gray } from "../helpers/reportIcons";
+import { shortcut } from "../helpers/shortcut";
 import { getPercentTrackedIcon, todoSourceIcon } from "../helpers/todoListIcons";
 import { TodoGroup, TodoSourceId } from "../types";
 import ReportList from "./ReportList";
@@ -135,6 +136,7 @@ export default function ReportListItem({
             <Action.Push
               icon={isGroupReportItem(reportItem) ? Icon.List : Icon.Sidebar}
               title={isGroupReportItem(reportItem) ? "Show Group Items" : "Show Details"}
+              shortcut={shortcut.showDetails}
               target={
                 isGroupReportItem(reportItem) ? (
                   <ReportList
@@ -165,6 +167,7 @@ export default function ReportListItem({
             <Action.OpenInBrowser
               icon={{ source: { light: "light/calendar-event.svg", dark: "dark/calendar-event.svg" } }}
               title="Open in Calendar"
+              shortcut={shortcut.openInCalendar}
               url={`ical://ekevent/${reportItem.eventId}?method=show&options=more`}
             />
           )}
@@ -173,13 +176,14 @@ export default function ReportListItem({
             {availableGroupKeys.length > 0 ? (
               <ActionPanel.Submenu
                 icon={Icon.Minimize}
-                title={groupKeys.length === 0 ? "Group" : "Group Further"}
-                shortcut={{ modifiers: ["cmd"], key: "g" }}
+                title="Group"
+                shortcut={{ modifiers: ["shift", "cmd"], key: "g" }}
               >
                 {availableGroupKeys.map((groupKey) => (
                   <Action
-                    key={groupKey}
-                    title={groupKey}
+                    key={groupKey.title}
+                    title={groupKey.title}
+                    shortcut={{ modifiers: ["shift", "cmd"], key: groupKey.key }}
                     onAction={() => {
                       // `taskBlock`, if present, stays at the end.
                       const lastGroupKey = groupKeys.at(-1);
@@ -196,11 +200,16 @@ export default function ReportListItem({
 
             {groupKeys.length > 0 ? (
               <>
-                <ActionPanel.Submenu icon={Icon.Maximize} title="Ungroup" shortcut={{ modifiers: ["cmd"], key: "u" }}>
+                <ActionPanel.Submenu
+                  icon={Icon.Maximize}
+                  title="Ungroup"
+                  shortcut={{ modifiers: ["shift", "cmd"], key: "u" }}
+                >
                   {groupKeys.map((groupKey) => (
                     <Action
-                      key={groupKey}
-                      title={groupKey}
+                      key={groupKey.title}
+                      title={groupKey.title}
+                      shortcut={{ modifiers: ["shift", "cmd"], key: groupKey.key }}
                       onAction={() => setGroupKeys(groupKeys.filter((key) => key !== groupKey))}
                     />
                   ))}
@@ -209,7 +218,7 @@ export default function ReportListItem({
                 <Action
                   icon={showingGroupsAsItems ? Icon.Folder : Icon.BulletPoints}
                   title={"Show Groups as " + (showingGroupsAsItems ? "Sections" : "Items")}
-                  shortcut={{ modifiers: ["shift", "cmd"], key: "g" }}
+                  shortcut={{ modifiers: ["shift", "cmd"], key: "i" }}
                   onAction={() => setShowingGroupsAsItems(!showingGroupsAsItems)}
                 />
               </>
@@ -217,7 +226,11 @@ export default function ReportListItem({
           </ActionPanel.Section>
 
           <ActionPanel.Section>
-            <ActionPanel.Submenu icon={Icon.ArrowDown} title={"Sort"} shortcut={{ modifiers: ["cmd"], key: "s" }}>
+            <ActionPanel.Submenu
+              icon={Icon.ArrowDown}
+              title={"Sort"}
+              shortcut={{ modifiers: ["shift", "cmd"], key: "s" }}
+            >
               {Object.values(reportItemSortDescriptor).map((descriptor) => (
                 <Action
                   key={descriptor.title}
@@ -231,6 +244,7 @@ export default function ReportListItem({
                       : Icon.ArrowDownCircle
                   }
                   title={descriptor.title}
+                  shortcut={{ modifiers: ["shift", "cmd"], key: descriptor.key }}
                   onAction={() => setSortDescriptor(descriptor)}
                 />
               ))}
