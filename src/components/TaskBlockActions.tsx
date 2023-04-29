@@ -15,6 +15,7 @@ export default function TaskBlockActions(props: TaskBlockTodoListProps) {
       <Action.OpenInBrowser
         icon={{ source: { light: "light/calendar-event.svg", dark: "dark/calendar-event.svg" } }}
         title="Open in Calendar"
+        shortcut={shortcut.openInCalendar}
         url={`ical://ekevent/${props.rootTaskBlockItem.blocked.currentOrNextItem.id}?method=show&options=more`}
       />
     </>
