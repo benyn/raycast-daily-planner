@@ -2,7 +2,7 @@ import { Action, ActionPanel, Alert, Color, confirmAlert, getPreferenceValues, I
 import { Children, useMemo, useState } from "react";
 import { createBlock, deleteEvent, rescheduleEvent, updateEventURL } from "../api/eventkit";
 import { appendToTaskBlockURL, BREAK_BLOCK_DEEPLINK, createTaskBlockURL, taskBlockName } from "../api/todo-source";
-import { callFunctionShowingToasts, updateStartDateIfLaterThan } from "../helpers/actions";
+import { callFunctionShowingToasts, updateStartDateOnListChange } from "../helpers/actions";
 import { formatInterval } from "../helpers/datetime";
 import { findIndexOfOverlappingInterval, findTimeSlots } from "../helpers/interval";
 import { shortcut } from "../helpers/shortcut";
@@ -75,7 +75,7 @@ export default function BlockTimeActions({
             ),
 
             isReschedulingOnTimeblocking && isTodoItem(item)
-              ? updateStartDateIfLaterThan(item, interval.start, revalidateTodos)
+              ? updateStartDateOnListChange(item, interval.start, revalidateTodos)
               : Promise.resolve(),
           ]);
         },
@@ -100,7 +100,7 @@ export default function BlockTimeActions({
           updateEventURL(eventId, newURL).then(() => revalidateBlocks()),
 
           isReschedulingOnTimeblocking && isTodoItem(item)
-            ? updateStartDateIfLaterThan(item, start, revalidateTodos)
+            ? updateStartDateOnListChange(item, start, revalidateTodos)
             : Promise.resolve(),
         ]);
       },
@@ -121,7 +121,7 @@ export default function BlockTimeActions({
             ),
 
             isReschedulingOnTimeblocking && isTodoItem(item)
-              ? updateStartDateIfLaterThan(item, interval.start, revalidateTodos)
+              ? updateStartDateOnListChange(item, interval.start, revalidateTodos)
               : Promise.resolve(),
           ]);
         },

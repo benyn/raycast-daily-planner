@@ -5,7 +5,7 @@ import { updateTodo } from "../api/todo-source";
 import {
   callFunctionShowingToasts,
   findRunningTimeEntry,
-  updateStartDateIfLaterThan,
+  updateStartDateOnListChange,
   updateTimeEntry,
 } from "../helpers/actions";
 import { shortcut } from "../helpers/shortcut";
@@ -95,7 +95,7 @@ function StartTimerAction({
           ),
 
           isReschedulingOnTimeTracking && isTodoItem(item)
-            ? updateStartDateIfLaterThan(item, new Date(), revalidateTodos)
+            ? updateStartDateOnListChange(item, new Date(), revalidateTodos)
             : Promise.resolve(),
         ]);
       },

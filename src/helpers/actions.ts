@@ -1,7 +1,7 @@
 import { getPreferenceValues, launchCommand, LaunchType, showToast, Toast } from "@raycast/api";
 import { MutatePromise } from "@raycast/utils";
-import { differenceInCalendarDays } from "date-fns";
-import { TodoFormData, updateTodo } from "../api/todo-source";
+import { differenceInCalendarDays, startOfTomorrow } from "date-fns";
+import { enabledAction, TodoFormData, updateTodo } from "../api/todo-source";
 import { CacheableTimeEntry, TimeEntry, TodoSourceId } from "../types";
 import { cachePausedTimer, cacheRunningTimer, getCachedRunningTimer, updateRunningTimerTitle } from "./cache";
 import { getPrimaryAction, getSecondaryAction, PreferenceError } from "./errors";
@@ -59,15 +59,28 @@ export function findRunningTimeEntry(timeEntries: TimeEntry[] | null | undefined
   return timeEntries?.find(({ end }) => !end);
 }
 
-// Update todo's `startDate` if it's missing or later than `refDate` so the to-do shows up on the right list.
-// If `startDate` is not supported (Todoist), `dueDate` is adjusted. Preference values (`isReschedulingOnTimeblocking`,
-// `isReschedulingOnTimeTracking`) should be checked before calling this function.
-export async function updateStartDateIfLaterThan(
-  { sourceId, todoId, startDate }: TodoItem,
+// Update `startDate` (Reminders/Things) or `dueDate` (Todoist) if the given to-do needs to be moved to another list:
+// - `startDate`/`dueDate` is missing,
+// - `startDate`/`dueDate` is later than `refDate` (likely moved into the "Today" list), or
+// - `startDate`/`dueDate` is today or earlier, but `refDate` is tomorrow or later (moved out of the "Today" list).
+//
+// Preference values (`isReschedulingOnTimeblocking`, `isReschedulingOnTimeTracking`) must be checked beforehand.
+export async function updateStartDateOnListChange(
+  { sourceId, todoId, startDate, dueDate }: TodoItem,
   refDate: Date | number,
   revalidateTodos: (sourceId?: TodoSourceId) => Promise<void>
 ) {
-  if (!startDate || differenceInCalendarDays(startDate, refDate) > 0) {
+  const startOrDueDate = enabledAction[sourceId].setStartDate ? startDate : dueDate;
+
+  // Ideally, in order to show procrastination on productivity reports, `startDate`/`dueDate` should not be pushed unless
+  // explicitly changed. Also, to avoid changing the `startDate` of a multi-day to-do, `startDate` should not be pushed if
+  // the to-do has scheduled blocks  in the past. Currently, this check is not implemented, but using `startOfTomorrow()`
+  // rather than `differenceInCalendarDays(startOrDueDate, refDate) < 0` prevents start date change for carryovers.
+  if (
+    !startOrDueDate ||
+    differenceInCalendarDays(startOrDueDate, refDate) > 0 ||
+    (startOrDueDate < startOfTomorrow() && startOfTomorrow() <= refDate)
+  ) {
     const newStartDate = typeof refDate === "object" ? refDate : new Date(refDate);
     await updateTodo[sourceId](todoId, { startDate: newStartDate });
     await revalidateTodos(sourceId);
