@@ -67,6 +67,11 @@ function TaskBlockTodoListWithTodoAndEventIds({
   const taskBlockItem =
     buildTaskBlockTodoList(todos, tieredTodoGroups, todoTags, blocks, runningTimeEntry) ?? rootTaskBlockItem;
 
+  const revalidateAllBlocks = async () => {
+    const [blocks] = await Promise.all([revalidateBlocks(), revalidateRootBlocks ? revalidateRootBlocks() : []]);
+    return blocks;
+  };
+
   return (
     <TodoList
       listName={taskBlockItem?.title}
@@ -82,6 +87,7 @@ function TaskBlockTodoListWithTodoAndEventIds({
           revalidateRootTodos ? revalidateRootTodos(sourceId) : Promise.resolve(),
         ]).then(() => undefined)
       }
+      revalidateBlocks={revalidateAllBlocks}
       getPrimaryActions={(item, parentBlock) => (
         <>
           {isTodoItem(item) && parentBlock ? (
@@ -89,12 +95,7 @@ function TaskBlockTodoListWithTodoAndEventIds({
               todoItem={item}
               currentBlock={parentBlock}
               availableTaskBlocks={blocks?.filter((block) => block !== parentBlock)}
-              revalidateBlocks={() =>
-                Promise.all([
-                  revalidateBlocks(),
-                  revalidateRootBlocks ? revalidateRootBlocks() : Promise.resolve(),
-                ]).then(([blocks]) => blocks)
-              }
+              revalidateBlocks={revalidateAllBlocks}
             />
           ) : null}
 

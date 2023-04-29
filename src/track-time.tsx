@@ -133,6 +133,7 @@ function TrackTime(stoppableRunningTimeEntry?: TimeEntry) {
       floatingRunningTimeEntry={runningTimeEntryListItem ? undefined : runningTimeEntry}
       showNoRunningTimeEntrySection={!runningTimeEntryListItem}
       revalidateTodos={revalidateTodos}
+      revalidateBlocks={revalidateBlocks}
       revalidateTimeEntries={revalidateTimeEntries}
       mutateTimeEntries={mutateTimeEntries}
       searchBarAccessory={<TodoListDropdown list={list} setList={setList} />}

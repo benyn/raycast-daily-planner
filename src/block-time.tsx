@@ -81,6 +81,7 @@ function BlockTime(isLoadingCalendars: boolean) {
       tieredTodoGroups={tieredTodoGroups}
       todoTags={todoTags}
       revalidateTodos={revalidateTodos}
+      revalidateBlocks={revalidateBlocks}
       revalidateUpcomingEvents={revalidateUpcomingEvents}
       searchBarAccessory={<TodoListDropdown list={list} setList={setList} />}
       getPrimaryActions={(item) => (

@@ -43,6 +43,7 @@ export default function TodoListItem({
   tieredTodoGroups,
   todoTags,
   revalidateTodos,
+  revalidateBlocks,
   revalidateUpcomingEvents,
   revalidateTimeEntries,
   mutateTimeEntries,
@@ -56,7 +57,8 @@ export default function TodoListItem({
   tieredTodoGroups: TodoGroup[] | undefined;
   todoTags: Map<string, string> | undefined;
   revalidateTodos: (sourceId?: TodoSourceId) => Promise<void>;
-  revalidateUpcomingEvents?: () => Promise<CalendarEvent[]>;
+  revalidateBlocks: () => Promise<Block[]>;
+  revalidateUpcomingEvents: (() => Promise<CalendarEvent[]>) | undefined;
   revalidateTimeEntries: (() => Promise<TimeEntry[]>) | (() => void) | undefined;
   mutateTimeEntries: MutatePromise<TimeEntry[] | undefined> | undefined;
   getPrimaryActions: (item: TodoItem | TaskBlockItem, parentBlock?: Block) => JSX.Element;
@@ -206,6 +208,7 @@ export default function TodoListItem({
               tieredTodoGroups={tieredTodoGroups}
               todoTags={todoTags}
               revalidateTodos={revalidateTodos}
+              revalidateBlocks={revalidateBlocks}
               revalidateUpcomingEvents={revalidateUpcomingEvents}
               revalidateTimeEntries={revalidateTimeEntries}
               mutateTimeEntries={mutateTimeEntries}

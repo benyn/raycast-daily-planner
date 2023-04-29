@@ -26,7 +26,16 @@ import { endOfToday, fourteenDayInterval } from "../../helpers/datetime";
 import { shortcut } from "../../helpers/shortcut";
 import { TodoItem, todoState } from "../../helpers/todoList";
 import { todoSourceIcon } from "../../helpers/todoListIcons";
-import { CalendarEvent, TimeEntry, TimeEntryIdType, Todo, TodoGroup, TodoSourceId, TodoStatus } from "../../types";
+import {
+  Block,
+  CalendarEvent,
+  TimeEntry,
+  TimeEntryIdType,
+  Todo,
+  TodoGroup,
+  TodoSourceId,
+  TodoStatus,
+} from "../../types";
 import EditTodoForm from "../EditTodoForm";
 import MoveSubmenu from "./MoveSubmenu";
 import TagSubmenu from "./TagSubmenu";
@@ -51,6 +60,7 @@ export default function TodoActions({
   tieredTodoGroups,
   todoTags,
   revalidateTodos,
+  revalidateBlocks,
   revalidateUpcomingEvents,
   revalidateTimeEntries,
   mutateTimeEntries,
@@ -63,6 +73,7 @@ export default function TodoActions({
   tieredTodoGroups: TodoGroup[] | undefined;
   todoTags: Map<string, string> | undefined;
   revalidateTodos: (sourceId?: TodoSourceId) => Promise<void>;
+  revalidateBlocks: () => Promise<Block[]>;
   revalidateUpcomingEvents: (() => Promise<CalendarEvent[]>) | undefined;
   revalidateTimeEntries: (() => Promise<TimeEntry[]>) | (() => void) | undefined;
   mutateTimeEntries: MutatePromise<TimeEntry[] | undefined> | undefined;
@@ -247,6 +258,7 @@ export default function TodoActions({
   async function refresh() {
     await Promise.all([
       revalidateTodos(),
+      revalidateBlocks(),
       revalidateUpcomingEvents ? revalidateUpcomingEvents() : Promise.resolve(),
       revalidateTimeEntries ? revalidateTimeEntries() : Promise.resolve(),
     ]);

@@ -20,6 +20,7 @@ export default function TodoList({
   floatingRunningTimeEntry,
   showNoRunningTimeEntrySection,
   revalidateTodos,
+  revalidateBlocks,
   revalidateUpcomingEvents,
   revalidateTimeEntries,
   mutateTimeEntries,
@@ -36,6 +37,7 @@ export default function TodoList({
   floatingRunningTimeEntry?: TimeEntry;
   showNoRunningTimeEntrySection?: boolean;
   revalidateTodos: (sourceId?: TodoSourceId) => Promise<void>;
+  revalidateBlocks: () => Promise<Block[]>;
   revalidateUpcomingEvents?: () => Promise<CalendarEvent[]>;
   revalidateTimeEntries?: (() => Promise<TimeEntry[]>) | (() => void);
   mutateTimeEntries?: MutatePromise<TimeEntry[] | undefined>;
@@ -100,6 +102,7 @@ export default function TodoList({
               tieredTodoGroups={isTodoItem(todoItem) ? tieredTodoGroups?.get(todoItem.sourceId) : undefined}
               todoTags={isTodoItem(todoItem) ? todoTags?.get(todoItem.sourceId) : undefined}
               revalidateTodos={revalidateTodos}
+              revalidateBlocks={revalidateBlocks}
               revalidateUpcomingEvents={revalidateUpcomingEvents}
               revalidateTimeEntries={revalidateTimeEntries}
               mutateTimeEntries={mutateTimeEntries}

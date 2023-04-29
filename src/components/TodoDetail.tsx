@@ -248,6 +248,7 @@ export default function TodoDetail({
               tieredTodoGroups={tieredTodoGroups}
               todoTags={todoTags}
               revalidateTodos={revalidateAllTodos}
+              revalidateBlocks={revalidateAllBlocks}
               revalidateUpcomingEvents={revalidateAllUpcomingEvents}
               revalidateTimeEntries={revalidateAllTimeEntries}
               mutateTimeEntries={mutateListTimeEntries}
