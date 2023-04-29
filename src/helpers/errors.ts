@@ -46,7 +46,7 @@ export function showCalendarNotFoundToast(missingCalendarNames: string[]): Promi
   });
 }
 
-function getPrimaryAction(error: unknown): Toast.ActionOptions | undefined {
+export function getPrimaryAction(error: unknown): Toast.ActionOptions | undefined {
   if (error instanceof PreferenceError) {
     return {
       title: "Open Raycast Settings",
@@ -58,7 +58,7 @@ function getPrimaryAction(error: unknown): Toast.ActionOptions | undefined {
   }
 }
 
-function getSecondaryAction(error: unknown): Toast.ActionOptions | undefined {
+export function getSecondaryAction(error: unknown): Toast.ActionOptions | undefined {
   if (error instanceof PreferenceError) {
     const apiKeySource = error.apiKeySource;
     if (apiKeySource) {

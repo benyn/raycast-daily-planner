@@ -4,6 +4,7 @@ import { differenceInCalendarDays } from "date-fns";
 import { TodoFormData, updateTodo } from "../api/todo-source";
 import { CacheableTimeEntry, TimeEntry, TodoSourceId } from "../types";
 import { cachePausedTimer, cacheRunningTimer, getCachedRunningTimer, updateRunningTimerTitle } from "./cache";
+import { getPrimaryAction, getSecondaryAction, PreferenceError } from "./errors";
 import { TodoItem } from "./todoList";
 
 const { isSyncingProjects, isSyncingTags } = getPreferenceValues<{
@@ -46,6 +47,10 @@ export async function callFunctionShowingToasts<T>({
     toast.title = failureTitle;
     toast.message = error instanceof Error ? error.message : String(error);
     toast.style = Toast.Style.Failure;
+    if (error instanceof PreferenceError) {
+      toast.primaryAction = getPrimaryAction(error);
+      toast.secondaryAction = getSecondaryAction(error);
+    }
     throw error;
   }
 }

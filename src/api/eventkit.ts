@@ -1,4 +1,5 @@
 import { runAppleScript } from "run-applescript";
+import { PreferenceError } from "../helpers/errors";
 import { quoteAndEscape, toAppleScriptDateTime, toAppleScriptList } from "./applescript";
 
 /**
@@ -55,6 +56,7 @@ on fetchCalendar(calName, calType, theStore)
 end fetchCalendar
 
 set theCal to fetchCalendar("${calendarName}", 1, theStore)
+if theCal is missing value then error "Calendar Not Found" number -9999
 `;
 
 /**
@@ -249,10 +251,23 @@ export async function updateBlockTitles(
       copy (e's calendarItemIdentifier() as text) to the end of updatedEventIdListRef
     end repeat
     return convertListToString(updatedEventIdListRef)`;
-  const updatedEventIds = await runAppleScript(
-    initStore(0) + fetchCalendar(calendarName) + main + fetchEvents + filterByURL + concatenate
-  );
-  return updatedEventIds !== "" ? updatedEventIds.split(",") : [];
+
+  try {
+    const updatedEventIds = await runAppleScript(
+      initStore(0) + fetchCalendar(calendarName) + main + fetchEvents + filterByURL + concatenate
+    );
+    return updatedEventIds !== "" ? updatedEventIds.split(",") : [];
+  } catch (error) {
+    // Throw a comprehensible error when the given calendar name is not found in the database. This error occurs when
+    // EditTodoForm is submitted and the Calendar for Time Tracking preference value is incorrect.
+    if (error instanceof Error && error.message.endsWith("(-9999)")) {
+      throw new PreferenceError(
+        `Unable to update calendar event titles: Calendar "${calendarName}" Not Found`,
+        "extension"
+      );
+    }
+    throw error;
+  }
 }
 
 export async function updateEventURL(eventId: string, newURL: string): Promise<void> {
