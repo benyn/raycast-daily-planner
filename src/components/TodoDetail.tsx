@@ -92,7 +92,7 @@ export default function TodoDetail({
     void showErrorToast("Unable to fetch time entries", timeEntriesError);
   }
 
-  const todoItem = buildTodoItem(todo, tieredTodoGroups, todoTags, blocks, timeEntries);
+  const todoItem = buildTodoItem(todo, tieredTodoGroups, todoTags, blocks, upcomingEvents, timeEntries);
 
   const markdown = useMemo(() => {
     const markdownElements: string[] = [];

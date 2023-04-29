@@ -8,6 +8,7 @@ import {
 } from "../api/todo-source";
 import {
   Block,
+  CalendarEvent,
   TimeEntry,
   Todo,
   TodoCore,
@@ -46,6 +47,7 @@ interface ListItem {
   readonly state: TodoState;
   readonly blocked: TimeData<Block> | null;
   readonly tracked: TimeData<TimeEntry> | null;
+  readonly conflicts?: CalendarEvent[];
 }
 
 // Todo hydrated with other data
@@ -164,6 +166,7 @@ function toTodoItem(
   todoGroupTitles: Map<TodoGroup["type"], Map<TodoGroup["id"], TodoGroup["title"]>> | undefined,
   todoTags: Map<string, string> | undefined,
   blocks: Block[] | undefined,
+  conflicts: CalendarEvent[] | undefined,
   timeEntries: TimeEntry[] | null | undefined,
   referenceTimeValue: number
 ): TodoItem {
@@ -197,6 +200,7 @@ function toTodoItem(
             currentOrNextItem: getCurrentOrNextItem(blocks, referenceTimeValue),
           }
         : null,
+    conflicts,
     tracked:
       timeEntries && timeEntries.length > 0
         ? {
@@ -270,6 +274,7 @@ function transferAndGroupTaskBlockTodos(
 
 function toTaskBlockItem(
   taskBlockedTodoItems: [Block, TodoItem[]][],
+  // conflicts: CalendarEvent[] | undefined, // TODO: Implement
   timeEntries: TimeEntry[] | undefined,
   referenceTimeValue: number,
   title?: string
@@ -410,6 +415,36 @@ export function formatStats(items: (TodoItem | TaskBlockItem)[]): string {
   return summaryComponents.join(" ∙ ");
 }
 
+function findSchedulingConflicts(
+  groupedBlocks: Map<string, Block[]>,
+  upcomingEvents: CalendarEvent[]
+): Map<string, CalendarEvent[]> | null {
+  if (upcomingEvents.length === 0 || groupedBlocks.size === 0) {
+    return null;
+  }
+  const groupedConflicts = new Map<string, CalendarEvent[]>();
+  for (const [url, blocks] of groupedBlocks) {
+    for (const block of blocks) {
+      for (const event of upcomingEvents) {
+        if (event.end <= block.start || event.id === block.id) {
+          continue;
+        }
+        if (block.end <= event.start) {
+          break;
+        }
+
+        const existing = groupedConflicts.get(url);
+        if (existing) {
+          existing.push(event);
+        } else {
+          groupedConflicts.set(url, [event]);
+        }
+      }
+    }
+  }
+  return groupedConflicts;
+}
+
 function getTodoGroupTitleLookupTableGroupedByType(todoGroups: TodoGroup[]) {
   return new Map<TodoGroup["type"], Map<TodoGroup["id"], TodoGroup["title"]>>(
     Array.from(groupToMap(todoGroups, "type"), ([type, todoGroups]) => [
@@ -421,17 +456,19 @@ function getTodoGroupTitleLookupTableGroupedByType(todoGroups: TodoGroup[]) {
 
 export function buildTodoList(
   todos: Todo[] | undefined,
-  blocks: Block[] | undefined,
-  timeEntries: TimeEntry[] | null | undefined,
   todoGroups: Map<TodoSourceId, TodoGroup[]> | undefined,
   todoTags: Map<TodoSourceId, Map<string, string>> | undefined,
+  blocks: Block[] | undefined,
+  upcomingEvents: CalendarEvent[] | null | undefined,
+  timeEntries: TimeEntry[] | null | undefined,
   orderedTodoStates: TodoState[]
 ): SectionedListItems<TodoItem | TaskBlockItem> | undefined {
-  if (!todos || !todoGroups || !todoTags || !blocks) {
+  if (!todos || !todoGroups || !todoTags || !blocks || upcomingEvents === undefined) {
     return undefined;
   }
 
   const groupedBlocks = groupToMap(blocks, "url");
+  const groupedConflicts = upcomingEvents ? findSchedulingConflicts(groupedBlocks, upcomingEvents) : null;
   const groupedTimeEntries = timeEntries ? groupToMap(timeEntries, "title") : null;
 
   const todoGroupTitles = new Map(
@@ -450,6 +487,7 @@ export function buildTodoList(
       todoGroupTitles.get(todo.sourceId),
       todoTags.get(todo.sourceId),
       groupedBlocks.get(todo.url),
+      groupedConflicts?.get(todo.url),
       groupedTimeEntries?.get(todo.title),
       referenceTimeValue
     )
@@ -506,6 +544,7 @@ export function buildTodoItem(
   tieredTodoGroups: TodoGroup[] | undefined,
   todoTags: Map<string, string> | undefined,
   blocks: Block[] | undefined,
+  upcomingEvents: CalendarEvent[] | undefined,
   todoTimeEntries: TimeEntry[] | null | undefined
 ): TodoItem | undefined {
   if (!todo || !tieredTodoGroups || !todoTags || !blocks || todoTimeEntries === undefined) {
@@ -514,9 +553,11 @@ export function buildTodoItem(
 
   const todoGroupTitles = getTodoGroupTitleLookupTableGroupedByType(flattenTieredTodoGroups(tieredTodoGroups));
 
+  const conflicts = upcomingEvents?.filter(({ url }) => url === todo.url);
+
   const referenceTimeValue = Date.now();
 
-  return toTodoItem(todo, todoGroupTitles, todoTags, blocks, todoTimeEntries, referenceTimeValue);
+  return toTodoItem(todo, todoGroupTitles, todoTags, blocks, conflicts, todoTimeEntries, referenceTimeValue);
 }
 
 // Updates the second element (`TodoItem[]`) of each section with the given `todos` and `events`. This is for
@@ -547,6 +588,7 @@ export function buildTaskBlockTodoList(
       todo,
       todoGroupTitles.get(todo.sourceId),
       todoTags.get(todo.sourceId),
+      undefined,
       undefined,
       undefined,
       referenceTimeValue

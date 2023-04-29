@@ -86,7 +86,7 @@ function TrackTime(stoppableRunningTimeEntry?: TimeEntry) {
 
   const sectionedTodoItems = useMemo(
     () =>
-      buildTodoList(todos, blocks, timeEntries, todoGroups, todoTags, [
+      buildTodoList(todos, todoGroups, todoTags, blocks, null, timeEntries, [
         todoState.inProgress,
         todoState.paused,
         todoState.timeblocked,
@@ -94,7 +94,7 @@ function TrackTime(stoppableRunningTimeEntry?: TimeEntry) {
         todoState.completed,
         todoState.canceled,
       ]),
-    [todos, blocks, timeEntries, todoGroups, todoTags]
+    [todos, todoGroups, todoTags, blocks, timeEntries]
   );
 
   // Assume zero or one running time entry. Toggl & Clockify don't allow multiple running time entries. If

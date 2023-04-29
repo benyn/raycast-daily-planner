@@ -45,21 +45,21 @@ function BlockTime(isLoadingCalendars: boolean) {
   });
   const taskBlocks = useMemo(() => blocks?.filter(isTaskBlock), [blocks]);
 
+  const [isLoadingUpcomingEvents, upcomingEvents, revalidateUpcomingEvents] = useEvents({
+    calendars,
+    interval: restOfTodayAndNextSevenDays,
+  });
+
   const sectionedTodoItems = useMemo(
     () =>
-      buildTodoList(todos, blocks, null, todoGroups, todoTags, [
+      buildTodoList(todos, todoGroups, todoTags, blocks, upcomingEvents, null, [
         todoState.notTimeblocked,
         todoState.timeblocked,
         todoState.completed,
         todoState.canceled,
       ]),
-    [todos, blocks, todoGroups, todoTags]
+    [todos, todoGroups, todoTags, blocks, upcomingEvents]
   );
-
-  const [isLoadingUpcomingEvents, upcomingEvents, revalidateUpcomingEvents] = useEvents({
-    calendars,
-    interval: restOfTodayAndNextSevenDays,
-  });
 
   const availableTimes = useMemo(() => getAvailableTimes(upcomingEvents, offHours), [upcomingEvents]);
 

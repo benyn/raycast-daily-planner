@@ -2,7 +2,7 @@ import { ActionPanel, Color, Icon, List } from "@raycast/api";
 import { MutatePromise } from "@raycast/utils";
 import { differenceInCalendarDays } from "date-fns";
 import { useMemo } from "react";
-import { todoSourceApplicationName } from "../api/todo-source";
+import { enabledAction, todoSourceApplicationName } from "../api/todo-source";
 import { findRunningTimeEntry } from "../helpers/actions";
 import { formatDuration, formatInterval, now } from "../helpers/datetime";
 import { formatTaskBlockTodoCount, isTaskBlockItem, isTodoItem, TaskBlockItem, TodoItem } from "../helpers/todoList";
@@ -31,7 +31,7 @@ function getTrackedTimeAccessory(
       color: Color.PrimaryText, // custom colors aren't allowed
       value: formatDuration(duration, { style: "time", showSeconds: true }),
     },
-    tooltip: `${count} time ${count === 1 ? "entry" : "entries"} recorded today${
+    tooltip: `${count === 1 ? "T" : `${count} t`}ime ${count === 1 ? "entry" : "entries"} recorded today${
       percentTracked ? ` (${percentTracked.toString()}% of blocked time)` : ""
     }:\n${entryList}`,
   };
@@ -117,18 +117,20 @@ export default function TodoListItem({
 
       if (dueDate) {
         const days = differenceInCalendarDays(dueDate, now);
-        const color = days < 0 ? Color.Red : days === 0 ? Color.Orange : undefined;
-        accessories.push({
-          icon: {
-            source: Icon.Flag,
-            tintColor: color,
-          },
-          text: {
-            color: color,
-            value: days === 0 ? "Today" : `${days}d`,
-          },
-          tooltip: `Due date: ${dueDate.toLocaleDateString()}`,
-        });
+        if (!isTodayList || days !== 0 || enabledAction[item.sourceId].setStartDate) {
+          const color = days < 0 ? Color.Red : days === 0 ? Color.Orange : undefined;
+          accessories.push({
+            icon: {
+              source: Icon.Flag,
+              tintColor: color,
+            },
+            text: {
+              color: color,
+              value: days === 0 ? "Today" : `${days}d`,
+            },
+            tooltip: `Due date: ${dueDate.toLocaleDateString()}`,
+          });
+        }
       }
     }
 
@@ -138,7 +140,17 @@ export default function TodoListItem({
       accessories.push({
         icon: Icon.Calendar,
         text: `${formatInterval(item.blocked.currentOrNextItem)}${count > 1 ? ` +${count - 1}` : ""}`,
-        tooltip: `${count} time ${count === 1 ? "block" : "blocks"} scheduled for today:\n${eventList}`,
+        tooltip: `${count === 1 ? "S" : `${count} s`}cheduled time block${count === 1 ? "" : "s"}:\n${eventList}`,
+      });
+    }
+
+    if (item.conflicts?.length) {
+      const count = item.conflicts.length;
+      accessories.push({
+        icon: { source: Icon.ArrowsContract, tintColor: Color.Red },
+        tooltip: `${count === 1 ? "S" : `${count} s`}cheduling conflict${count === 1 ? "" : "s"}:\n${item.conflicts
+          .map((e) => `${e.title} (${formatInterval(e)})`)
+          .join("\n")}`,
       });
     }
 
