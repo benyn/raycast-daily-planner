@@ -74,7 +74,9 @@ if theCal is missing value then error "Calendar Not Found" number -9999
  */
 const fetchEvent = `
 on fetchEvent(calItemID, theStore)
-  return theStore's calendarItemWithIdentifier:calItemID
+  set theEvent to theStore's calendarItemWithIdentifier:calItemID
+  if theEvent is missing value then error "Event not found" number -9998
+  return theEvent
 end fetchEvent`;
 
 // Returns all events that fall within the given date range, in chronological order. Dates can be AS dates or NSDates.
@@ -178,7 +180,18 @@ export async function createBlock(
   return await runAppleScript(initStore(0) + fetchCalendar(calendarName) + main + create);
 }
 
-export async function rescheduleEvent(eventId: string, { start, end }: { start: Date; end: Date }) {
+async function runAppleScriptOnEvent(main: string, errorMessage: string): Promise<void> {
+  try {
+    await runAppleScript(initStore(0) + main + fetchEvent);
+  } catch (error) {
+    if (error instanceof Error && error.message.endsWith("(-9998)")) {
+      throw new Error(`Unable to ${errorMessage}: calendar event not found`);
+    }
+    throw error;
+  }
+}
+
+export async function rescheduleEvent(eventId: string, { start, end }: { start: Date; end: Date }): Promise<void> {
   if (end < start) throw new Error("end date must not be before the start date.");
   const main = `
     set startD to ${toAppleScriptDateTime(start)}
@@ -188,7 +201,7 @@ export async function rescheduleEvent(eventId: string, { start, end }: { start: 
     theEvent's setEndDate:endD
     set {theResult, theError} to theStore's saveEvent:theEvent span:0 commit:true |error|:(reference)
     if not theResult as boolean then error (theError's |localizedDescription|() as text)`;
-  await runAppleScript(initStore(0) + main + fetchEvent);
+  await runAppleScriptOnEvent(main, "reschedule event");
 }
 
 export async function updateEventEndDate(eventId: string, newEnd: Date): Promise<void> {
@@ -197,8 +210,16 @@ export async function updateEventEndDate(eventId: string, newEnd: Date): Promise
     set theEvent to fetchEvent("${eventId}", theStore)
     theEvent's setEndDate:endD
     set {theResult, theError} to theStore's saveEvent:theEvent span:0 commit:true |error|:(reference)
-    if not theResult as boolean then error (theError's |localizedDescription|() as text)`;
-  await runAppleScript(initStore(0) + main + fetchEvent);
+    if not theResult as boolean then error (theError's |localizedDescription|() as text) number -9997`;
+
+  try {
+    await runAppleScriptOnEvent(main, "update end date");
+  } catch (error) {
+    if (error instanceof Error && error.message.endsWith("The start date must be before the end date. (-9997)")) {
+      throw new Error("Unable to update end date: the start date must be before the end date");
+    }
+    throw error;
+  }
 }
 
 // Finds and "stops" all running timers started in the last 2 days, and creates a new calendar event a la `createBlock`.
@@ -276,7 +297,7 @@ export async function updateEventURL(eventId: string, newURL: string): Promise<v
     theEvent's setURL:(current application's NSURL's URLWithString:"${newURL}")
     set {theResult, theError} to theStore's saveEvent:theEvent span:0 commit:true |error|:(reference)
     if not theResult as boolean then error (theError's |localizedDescription|() as text)`;
-  await runAppleScript(initStore(0) + main + fetchEvent);
+  await runAppleScriptOnEvent(main, "update event URL");
 }
 
 export async function deleteEvent(eventId: string): Promise<void> {
@@ -284,7 +305,7 @@ export async function deleteEvent(eventId: string): Promise<void> {
     set theEvent to fetchEvent("${eventId}", theStore)
     set {theResult, theError} to theStore's removeEvent:theEvent span:0 commit:true |error|:(reference)
     if not theResult as boolean then error (theError's localizedDescription() as text)`;
-  await runAppleScript(initStore(0) + main + fetchEvent);
+  await runAppleScriptOnEvent(main, "delete event");
 }
 
 export async function deleteBlocks(

@@ -6,6 +6,7 @@ import {
   MenuBarExtra,
   open,
   openCommandPreferences,
+  showHUD,
 } from "@raycast/api";
 import { useSQL } from "@raycast/utils";
 import { useState } from "react";
@@ -71,50 +72,79 @@ export default function RunningTimer() {
   });
 
   async function stopTimer() {
-    if (runningTimer && typeof timeTracker !== "string") {
-      await timeTracker.stopTimer(runningTimer);
-      cacheRunningTimer(null);
-      setRunningTimer(null);
+    if (typeof timeTracker === "string") {
+      await showHUD(`❌ "${timeTracker}" is missing or invalid. Please update it in Raycast Settings and try again.`);
+      return;
     }
+
+    if (!runningTimer) {
+      await showHUD("There is no running timer.");
+      return;
+    }
+
+    try {
+      await timeTracker.stopTimer(runningTimer);
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+      await showHUD(`❌ ${error.message}`);
+    }
+    cacheRunningTimer(null);
+    setRunningTimer(null);
   }
 
   async function pauseTimer() {
-    if (runningTimer && typeof timeTracker !== "string") {
-      const pausedTimer = { ...runningTimer, end: Date.now() };
-      await stopTimer();
-      cachePausedTimer(pausedTimer);
-      setPausedTimer(pausedTimer);
+    if (!runningTimer) {
+      await showHUD("There is no running timer.");
+      return;
     }
+
+    const pausedTimer = { ...runningTimer, end: Date.now() };
+    await stopTimer();
+    cachePausedTimer(pausedTimer);
+    setPausedTimer(pausedTimer);
   }
 
   async function startTimer(url: Block["url"], title: Block["title"]) {
-    if (typeof timeTracker !== "string") {
-      // Project name/tags won't be synced (mentioned in documentation).
-      const timeEntry = await timeTracker.startTimer(url, {
-        description: title,
-      });
-      const cacheableTimeEntry = { ...timeEntry, url };
-      cacheRunningTimer(cacheableTimeEntry);
-      setRunningTimer(cacheableTimeEntry);
+    if (typeof timeTracker === "string") {
+      await showHUD(`❌ "${timeTracker}" is missing or invalid. Please update it in Raycast Settings and try again.`);
+      return;
     }
+
+    // Project name/tags won't be synced (mentioned in documentation).
+    const timeEntry = await timeTracker.startTimer(url, {
+      description: title,
+    });
+    const cacheableTimeEntry = { ...timeEntry, url };
+    cacheRunningTimer(cacheableTimeEntry);
+    setRunningTimer(cacheableTimeEntry);
   }
 
   async function resumeTimer() {
-    if (pausedTimer && typeof timeTracker !== "string") {
-      const { title, start, end, url } = pausedTimer;
-      const timeEntry = await timeTracker.startTimer(url, {
-        description: title,
-      });
-      const cacheableTimeEntry = {
-        ...timeEntry,
-        start: end ? timeEntry.start - (end - start) : timeEntry.start,
-        url,
-      };
-      cachePausedTimer(null);
-      setPausedTimer(null);
-      cacheRunningTimer(cacheableTimeEntry);
-      setRunningTimer(cacheableTimeEntry);
+    if (typeof timeTracker === "string") {
+      await showHUD(`❌ "${timeTracker}" is missing or invalid. Please update it in Raycast Settings and try again.`);
+      return;
     }
+
+    if (!pausedTimer) {
+      await showHUD("There is no paused timer.");
+      return;
+    }
+
+    const { title, start, end, url } = pausedTimer;
+    const timeEntry = await timeTracker.startTimer(url, {
+      description: title,
+    });
+    const cacheableTimeEntry = {
+      ...timeEntry,
+      start: end ? timeEntry.start - (end - start) : timeEntry.start,
+      url,
+    };
+    cachePausedTimer(null);
+    setPausedTimer(null);
+    cacheRunningTimer(cacheableTimeEntry);
+    setRunningTimer(cacheableTimeEntry);
   }
 
   return (
