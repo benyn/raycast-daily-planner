@@ -98,7 +98,7 @@ export default function TodoDetail({
     const markdownElements: string[] = [];
     if (todo?.title) markdownElements.push(`# ${todo.title}`);
     if (todo && isDetailedTodo(todo)) {
-      if (todo.notes) markdownElements.push(todo.notes.replaceAll("\n", "\\\n"));
+      if (todo.notes) markdownElements.push(todo.notes.replaceAll("\n", "  \n"));
       if (todo.concatenatedChecklistItems) markdownElements.push(todo.concatenatedChecklistItems);
     }
     return markdownElements.join("\n\n");
@@ -140,7 +140,7 @@ export default function TodoDetail({
                 return (
                   <Detail.Metadata.TagList.Item
                     key={id}
-                    icon={url === todoItem?.url ? undefined : { source: taskBlockIcon, tintColor: color }}
+                    icon={isTaskBlock({ url }) ? { source: taskBlockIcon, tintColor: color } : undefined}
                     text={formatRelativeTimeInterval({ start, end })}
                     color={color}
                   />
@@ -156,7 +156,7 @@ export default function TodoDetail({
                 return (
                   <Detail.Metadata.TagList.Item
                     key={id}
-                    icon={url === todoItem?.url ? undefined : { source: taskBlockIcon, tintColor: color }}
+                    icon={isTaskBlock({ url }) ? { source: taskBlockIcon, tintColor: color } : undefined}
                     text={
                       end ? formatRelativeTimeInterval({ start, end }) : formatRelativeDateTime(start) + " - Running"
                     }
