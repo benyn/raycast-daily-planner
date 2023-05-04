@@ -9,7 +9,7 @@ import {
   useNavigation,
 } from "@raycast/api";
 import { MutatePromise } from "@raycast/utils";
-import { addDays, format } from "date-fns";
+import { addDays } from "date-fns";
 import { deleteBlocks } from "../../api/eventkit";
 import { timeTracker } from "../../api/time-tracker";
 import {
@@ -22,7 +22,7 @@ import {
   UpdateTodoData,
 } from "../../api/todo-source";
 import { callFunctionShowingToasts, findRunningTimeEntry, updateTimeEntry } from "../../helpers/actions";
-import { endOfToday, fourteenDayInterval } from "../../helpers/datetime";
+import { endOfToday, formatRelativeDateOnly, fourteenDayInterval } from "../../helpers/datetime";
 import { shortcut } from "../../helpers/shortcut";
 import { TodoItem, todoState } from "../../helpers/todoList";
 import { todoSourceIcon } from "../../helpers/todoListIcons";
@@ -123,22 +123,24 @@ export default function TodoActions({
 
   // Sets `startDate`, or, if unavailable, `dueDate`
   async function setStartDate(newValue: Date | null) {
+    // Keep `successMessage` short so Command-T doesn't conflict with the showToast keyboard shortcut.
     await updateTodoItem({
       data: { startDate: newValue },
       initTitle: newValue ? "Setting start date" : "Removing start date",
       successTitle: newValue ? "Set start date" : "Removed start date",
-      successMessage: newValue ? `${todoItem.title} is scheduled for ${format(newValue, "P")}` : "",
+      successMessage: newValue ? `to ${formatRelativeDateOnly(newValue)}` : "",
       failureTitle: "Failed to set start date",
     });
   }
 
   async function setDueDate(newValue: Date | null) {
+    // Keep `successMessage` short so Command-T doesn't conflict with the showToast keyboard shortcut.
     await updateTodoItem({
       data: { dueDate: newValue },
-      initTitle: newValue ? "Setting deadline" : "Removing deadline",
-      successTitle: newValue ? "Set deadline" : "Removed deadline",
-      successMessage: newValue ? `"${todoItem.title}" is due on ${format(newValue, "P")}` : "",
-      failureTitle: "Failed to set deadline",
+      initTitle: newValue ? "Setting due date" : "Removing due date",
+      successTitle: newValue ? "Set due date" : "Removed due date",
+      successMessage: newValue ? `to ${formatRelativeDateOnly(newValue)}` : "",
+      failureTitle: "Failed to set due date",
     });
   }
 
@@ -264,7 +266,8 @@ export default function TodoActions({
     ]);
   }
 
-  const dateAction = enabledAction[todoItem.sourceId].setStartDate ? "Start" : "Set Due Date to";
+  const hasStartDate = enabledAction[todoItem.sourceId].setStartDate;
+  const dateAction = hasStartDate ? "Start" : "Set Due Date to";
   const todoSourcePriority = priorityNameAndColor[todoItem.sourceId];
 
   return (
@@ -272,22 +275,24 @@ export default function TodoActions({
       {!isTodayList && (!todoItem.startDate || todoItem.startDate > endOfToday) ? (
         <Action
           icon={Icon.Star}
-          title={`${dateAction} Today`}
+          title={dateAction + " Today"}
           shortcut={shortcut.startToday}
-          onAction={() => void setStartDate(new Date())}
+          onAction={() => (hasStartDate ? void setStartDate(new Date()) : void setDueDate(new Date()))}
         />
       ) : null}
 
       {isTodayList || !todoItem.startDate || todoItem.startDate <= endOfToday ? (
         <Action
           icon={{ source: { light: "light/calendar-alt-arrow-right.svg", dark: "dark/calendar-alt-arrow-right.svg" } }}
-          title={`${dateAction} Tomorrow`}
+          title={dateAction + " Tomorrow"}
           shortcut={shortcut.startTomorrow}
-          onAction={() => void setStartDate(addDays(Date.now(), 1))}
+          onAction={() =>
+            hasStartDate ? void setStartDate(addDays(Date.now(), 1)) : void setDueDate(addDays(Date.now(), 1))
+          }
         />
       ) : null}
 
-      {enabledAction[todoItem.sourceId].setStartDate ? (
+      {hasStartDate ? (
         <Action.PickDate
           type={Action.PickDate.Type.Date}
           icon={{ source: { light: "light/calendar-alt.svg", dark: "dark/calendar-alt.svg" } }}
