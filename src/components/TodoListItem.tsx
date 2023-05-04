@@ -26,7 +26,7 @@ function getTrackedTimeAccessory(
   const entryList = items.map(({ start, end }) => formatInterval({ start, end: end ?? new Date() })).join("\n");
 
   return {
-    icon: percentTracked ? getPercentTrackedIcon(percentTracked) : undefined,
+    icon: percentTracked !== null ? getPercentTrackedIcon(percentTracked) : undefined,
     text: {
       color: Color.PrimaryText, // custom colors aren't allowed
       value: formatDuration(duration, { style: "time", showSeconds: true }),
