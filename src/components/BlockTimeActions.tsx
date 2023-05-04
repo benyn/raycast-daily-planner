@@ -10,10 +10,11 @@ import { shortcut } from "../helpers/shortcut";
 import { BreakBlockItem, isTodoItem, TaskBlockItem, TodoItem } from "../helpers/todoList";
 import { Block, CalendarEvent, DateInterval, TimeValueInterval, TodoSourceId } from "../types";
 
-const { blockCalendar, alarmOffset, isReschedulingOnTimeblocking } = getPreferenceValues<{
+const { blockCalendar, alarmOffset, isReschedulingOnTimeblocking, breakBlockName } = getPreferenceValues<{
   blockCalendar: string;
   alarmOffset: string;
   isReschedulingOnTimeblocking: boolean;
+  breakBlockName: string;
 }>();
 
 function ConditionalSubmenu(props: ActionPanel.Submenu.Props): JSX.Element {
@@ -284,7 +285,7 @@ export default function BlockTimeActions({
 
         <ActionPanel.Submenu
           icon={{ source: { light: "light/calendar-plus.svg", dark: "dark/calendar-plus.svg" } }}
-          title={"Add Break Block"}
+          title="Add Break Block"
           autoFocus={true}
           shortcut={shortcut.addBreakBlock}
           isLoading={isLoadingUpcomingEvents}
@@ -294,7 +295,8 @@ export default function BlockTimeActions({
         >
           <SuggestedIntervals
             onAction={(interval, formattedInterval) =>
-              void addBlock("Break", BREAK_BLOCK_DEEPLINK, interval, formattedInterval)
+              // An empty string `breakBlockName` is allowed.
+              void addBlock(breakBlockName, BREAK_BLOCK_DEEPLINK, interval, formattedInterval)
             }
           />
         </ActionPanel.Submenu>

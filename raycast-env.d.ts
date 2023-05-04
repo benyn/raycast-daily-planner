@@ -48,6 +48,8 @@ declare namespace Preferences {
   "alarmOffset": "missing value" | "0" | "-60" | "-120" | "-300" | "-600",
   /** Task Block Name - Default title for a calendar event representing a block of time set aside for multiple small tasks */
   "taskBlockName": string,
+  /** Break Block Name - Default title for a calendar event representing a block of time set aside for relaxation */
+  "breakBlockName": string,
   /**  - If a task is time-blocked for a date earlier than its start date (Reminders/Things) or due date (Todoist), update the start/due date to the time-blocked date. */
   "isReschedulingOnTimeblocking": boolean
 }

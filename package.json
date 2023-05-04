@@ -109,6 +109,14 @@
           "default": "Task Block"
         },
         {
+          "name": "breakBlockName",
+          "type": "textfield",
+          "title": "Break Block Name",
+          "description": "Default title for a calendar event representing a block of time set aside for relaxation",
+          "required": false,
+          "default": "Break"
+        },
+        {
           "name": "isReschedulingOnTimeblocking",
           "type": "checkbox",
           "label": "Update Start/Due Date on Time Blocking",
