@@ -1,10 +1,11 @@
 import { Action, ActionPanel, Alert, Color, confirmAlert, getPreferenceValues, Icon, Image } from "@raycast/api";
+import { areIntervalsOverlapping } from "date-fns";
 import { Children, useMemo, useState } from "react";
 import { createBlock, deleteEvent, rescheduleEvent, updateEventURL } from "../api/eventkit";
 import { appendToTaskBlockURL, BREAK_BLOCK_DEEPLINK, createTaskBlockURL, taskBlockName } from "../api/todo-source";
 import { callFunctionShowingToasts, updateStartDateOnListChange } from "../helpers/actions";
 import { formatInterval } from "../helpers/datetime";
-import { findIndexOfOverlappingInterval, findTimeSlots } from "../helpers/interval";
+import { findTimeSlots } from "../helpers/interval";
 import { shortcut } from "../helpers/shortcut";
 import { BreakBlockItem, isTodoItem, TaskBlockItem, TodoItem } from "../helpers/todoList";
 import { Block, CalendarEvent, DateInterval, TimeValueInterval, TodoSourceId } from "../types";
@@ -52,17 +53,23 @@ export default function BlockTimeActions({
   );
 
   async function confirmOnSchedulingConflict(interval: DateInterval, eventId?: string): Promise<boolean> {
-    const i = findIndexOfOverlappingInterval(interval, upcomingEvents);
-    if (i < 0 || !upcomingEvents || upcomingEvents[i].id === eventId) {
-      return true;
+    if (upcomingEvents) {
+      const otherEvents = eventId ? upcomingEvents.filter(({ id }) => id !== eventId) : upcomingEvents;
+      const conflict = otherEvents.find((other) => areIntervalsOverlapping(interval, other));
+      if (conflict) {
+        return await confirmAlert({
+          icon: Icon.ArrowsContract,
+          title: "Scheduling Conflict Detected",
+          message: `The selected time slot overlaps with "${conflict.title}" (${formatInterval(
+            conflict
+          )}). Schedule anyway?`,
+          primaryAction: {
+            title: "Proceed",
+          },
+        });
+      }
     }
-    const conflictTitle = upcomingEvents[i].title;
-    const conflictInterval = formatInterval({ start: upcomingEvents[i].start, end: upcomingEvents[i].end });
-    return await confirmAlert({
-      icon: Icon.ArrowsContract,
-      title: "Scheduling Conflict",
-      message: `"${conflictTitle}" is already scheduled for ${conflictInterval}. Proceed?`,
-    });
+    return true;
   }
 
   async function addBlock(title: string, url: string, interval: DateInterval, formattedInterval: string) {
@@ -84,6 +91,8 @@ export default function BlockTimeActions({
         successMessage: `for ${title}`,
         failureTitle: "Failed to block " + formattedInterval,
       });
+    } else {
+      setSearchText("");
     }
   }
 
@@ -130,6 +139,8 @@ export default function BlockTimeActions({
         successMessage: `to ${formatInterval(interval)} for ${item.title}`,
         failureTitle: `Failed to move ${formattedInterval}`,
       });
+    } else {
+      setSearchText("");
     }
   }
 

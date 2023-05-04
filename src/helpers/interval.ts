@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 // `ModelResult.resolution` type declaration doesn't include `null`, but in reality, it's often `null`.
 import { Constants, Culture, DateTimeRecognizer } from "@microsoft/recognizers-text-date-time";
-import { areIntervalsOverlapping, differenceInCalendarDays, maxTime } from "date-fns";
+import { areIntervalsOverlapping, differenceInCalendarDays } from "date-fns";
 import { CalendarEvent, DateInterval, TimeValueInterval } from "../types";
 import { PreferenceError } from "./errors";
 
@@ -155,29 +155,7 @@ export function getAvailableTimes(
     }
     pointInTime = end;
   }
-  // Add an interval from the end of the last busy block until the end of time (!).
-  availableTimes.push({ start: pointInTime, end: maxTime });
   return availableTimes;
-}
-
-// Assumes that otherIntervals are sorted by start date.
-export function findIndexOfOverlappingInterval(
-  interval: DateInterval,
-  otherIntervals: DateInterval[] | TimeValueInterval[] | CalendarEvent[] | undefined
-): number {
-  if (otherIntervals && otherIntervals.length > 0) {
-    const intervalEnd = typeof otherIntervals[0].start === "number" ? interval.end.getTime() : interval.end;
-    for (let i = 0; i < otherIntervals.length; i++) {
-      const other = otherIntervals[i];
-      if (intervalEnd < other.start) {
-        break;
-      }
-      if (areIntervalsOverlapping(interval, other)) {
-        return i;
-      }
-    }
-  }
-  return -1;
 }
 
 // Alternative to date-fns `roundToNearestMinutes`, which currently returns incorrect results when the rounding method
@@ -387,8 +365,8 @@ function toTimeSlots(
   const compareOverlappingFreeIntervals = (a: DateInterval, b: DateInterval) => {
     // Show results that overlap with an earlier free time interval before those fall within a later one.
     // Percentage doesn't matter as long as there's an overlap. Penalize those outside the free time intervals.
-    const aIndex = findIndexOfOverlappingInterval(a, searchIntervals);
-    const bIndex = findIndexOfOverlappingInterval(b, searchIntervals);
+    const aIndex = searchIntervals.findIndex((interval) => areIntervalsOverlapping(a, interval));
+    const bIndex = searchIntervals.findIndex((interval) => areIntervalsOverlapping(b, interval));
     return (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex) - (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex);
   };
 
@@ -663,11 +641,12 @@ export function findTimeSlots(
     }
   }
 
-  const duration = getParsedDuration(modelResults);
+  const parsedDuration = getParsedDuration(modelResults);
+  const duration = parsedDuration ?? preferredDuration;
   // The first possible start time is the next multiple-of-5 minute. Use the time this to-do item was selected, not
   // `now` from datetime.ts, which is when the command was initialized and can be a few minutes ago.
   const earliestPossibleStart = roundUpToNearestMinutes(Date.now(), 5);
-  const timeSlots = splitIntervals(combinedAvailableTimes, duration ?? preferredDuration, earliestPossibleStart);
+  let timeSlots = splitIntervals(combinedAvailableTimes, duration, earliestPossibleStart);
   if (currentInterval) {
     for (let i = timeSlots.length - 1; i >= 0; i--) {
       const { start, end } = timeSlots[i];
@@ -677,9 +656,18 @@ export function findTimeSlots(
     }
   }
 
+  // If no free times were found, add next five time slots of the given duration.
+  if (timeSlots.length === 0) {
+    const nextFiveDurations: TimeValueInterval = {
+      start: earliestPossibleStart,
+      end: earliestPossibleStart + duration * 5,
+    };
+    timeSlots = splitIntervals([nextFiveDurations], duration, earliestPossibleStart);
+  }
+
   return {
     timeSlots,
-    isRecognized: duration !== null,
+    isRecognized: parsedDuration !== null,
   };
 }
 

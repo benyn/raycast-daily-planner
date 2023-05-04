@@ -91,7 +91,7 @@ export function formatInterval({ start, end }: Interval): string {
     }
     return formatRelativeDateTime(start, now) + " - " + format(end, "p");
   }
-  return format(start, "Pp") + " - " + format(end, "Pp");
+  return formatRelativeDateTime(start, now) + " - " + formatRelativeDateTime(end, now);
 }
 
 function isStartOfDay(date: Date): boolean {
