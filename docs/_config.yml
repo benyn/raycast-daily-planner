@@ -8,7 +8,7 @@ url: "https://benyn.github.io"
 github_username: benyn
 
 # Build settings
-theme: just-the-docs
+remote_theme: just-the-docs
 
 aux_links:
   Template Repository: https://github.com/just-the-docs/just-the-docs-template
