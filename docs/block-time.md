@@ -1,6 +1,7 @@
 ---
+layout: default
 title: Block Time for To-Dos
-permalink: /block-time/
+nav_order: 3
 ---
 
 # Block Time for To-Dos

@@ -4,8 +4,7 @@ description: >- # this means to ignore newlines until "baseurl:"
   guidance on using this powerful productivity tool for time blocking, time
   tracking, and time usage analysis on macOS.
 theme: just-the-docs
-
 url: "https://benyn.github.io/raycast-daily-planner"
 
 aux_links:
-  Template Repository: https://github.com/benyn/raycast-daily-planner
+  Extension Repository: https://github.com/benyn/raycast-daily-planner
