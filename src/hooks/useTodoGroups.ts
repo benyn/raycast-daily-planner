@@ -16,29 +16,29 @@ import { TodoGroup, TodoSourceId } from "../types";
 
 function useRemindersLists({ execute }: { execute?: boolean }) {
   const path = getRemindersDBPath();
-  const { isLoading, data, error } = useSQL<TodoGroup>(path, listsQuery, {
+  const { isLoading, data, error, revalidate } = useSQL<TodoGroup>(path, listsQuery, {
     execute: execute !== false,
   });
-  return { isLoadingReminders: isLoading, remindersData: data, remindersError: error };
+  return { isLoadingReminders: isLoading, remindersData: data, remindersError: error, revalidateReminders: revalidate };
 }
 
 function useThingsAreasAndProjects({ execute }: { execute?: boolean }) {
   const path = getThingsDBPath();
-  const { isLoading, data, error } = useSQL<TodoGroup>(path, todoGroupsQuery, {
+  const { isLoading, data, error, revalidate } = useSQL<TodoGroup>(path, todoGroupsQuery, {
     execute: execute !== false,
   });
-  return { isLoadingThings: isLoading, thingsData: data, thingsError: error };
+  return { isLoadingThings: isLoading, thingsData: data, thingsError: error, revalidateThings: revalidate };
 }
 
 function useTodoistProjects({ execute }: { execute?: boolean }) {
-  const { isLoading, data, error } = useCachedPromise(getTodoistProjects, [], {
+  const { isLoading, data, error, revalidate } = useCachedPromise(getTodoistProjects, [], {
     execute: execute !== false,
   });
 
   const todoistError =
     error instanceof TodoistRequestError && error.isAuthenticationError() ? getInvalidTodoistAPITokenError() : error;
 
-  return { isLoadingTodoist: isLoading, todoistData: data, todoistError };
+  return { isLoadingTodoist: isLoading, todoistData: data, todoistError, revalidateTodoist: revalidate };
 }
 
 function getTieredTodoGroups(todoGroups: TodoGroup[] | undefined, sourceId: TodoSourceId): TodoGroup[] {
@@ -73,17 +73,21 @@ export default function useTodoGroups(options?: { execute?: boolean }): {
   tieredTodoGroups: Map<TodoSourceId, TodoGroup[]> | undefined;
   todoGroupsError: Error | undefined;
   isLoadingTodoGroups: boolean;
+  revalidateTodoGroups: () => Promise<void>;
 } {
-  const { isLoadingReminders, remindersData, remindersError } = useRemindersLists({
-    execute: activeSourceIds.includes(todoSourceId.reminders) && options?.execute !== false,
+  const executeReminders = activeSourceIds.includes(todoSourceId.reminders) && options?.execute !== false;
+  const { isLoadingReminders, remindersData, remindersError, revalidateReminders } = useRemindersLists({
+    execute: executeReminders,
   });
 
-  const { isLoadingThings, thingsData, thingsError } = useThingsAreasAndProjects({
-    execute: activeSourceIds.includes(todoSourceId.things) && options?.execute !== false,
+  const executeThings = activeSourceIds.includes(todoSourceId.things) && options?.execute !== false;
+  const { isLoadingThings, thingsData, thingsError, revalidateThings } = useThingsAreasAndProjects({
+    execute: executeThings,
   });
 
-  const { isLoadingTodoist, todoistData, todoistError } = useTodoistProjects({
-    execute: activeSourceIds.includes(todoSourceId.todoist) && options?.execute !== false,
+  const executeTodoist = activeSourceIds.includes(todoSourceId.todoist) && options?.execute !== false;
+  const { isLoadingTodoist, todoistData, todoistError, revalidateTodoist } = useTodoistProjects({
+    execute: executeTodoist,
   });
 
   // `tieredTodoGroups` are used in forms and `MoveSubmenu`.
@@ -103,10 +107,19 @@ export default function useTodoGroups(options?: { execute?: boolean }): {
     return { todoGroups, tieredTodoGroups };
   }, [remindersData, thingsData, todoistData]);
 
+  const revalidateTodoGroups = async () => {
+    await Promise.all([
+      executeReminders ? revalidateReminders() : Promise.resolve(),
+      executeThings ? revalidateThings() : Promise.resolve(),
+      executeTodoist ? revalidateTodoist() : Promise.resolve(),
+    ]);
+  };
+
   return {
     todoGroups,
     tieredTodoGroups,
     todoGroupsError: remindersError ?? thingsError ?? todoistError,
     isLoadingTodoGroups: isLoadingReminders || isLoadingThings || isLoadingTodoist,
+    revalidateTodoGroups,
   };
 }

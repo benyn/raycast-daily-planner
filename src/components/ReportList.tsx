@@ -23,6 +23,7 @@ export default function ReportList({
   sortDescriptor,
   setSortDescriptor,
   showSourceIcon,
+  refresh,
 }: ReportListParams): JSX.Element {
   return (
     <List
@@ -51,6 +52,7 @@ export default function ReportList({
                     sortDescriptor={sortDescriptor}
                     setSortDescriptor={setSortDescriptor}
                     showSourceIcon={showSourceIcon}
+                    refresh={refresh}
                   />
                 ))}
               </List.Section>
@@ -71,6 +73,7 @@ export default function ReportList({
                 sortDescriptor={sortDescriptor}
                 setSortDescriptor={setSortDescriptor}
                 showSourceIcon={showSourceIcon}
+                refresh={refresh}
               />
             )
           )

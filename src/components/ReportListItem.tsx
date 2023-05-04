@@ -42,6 +42,7 @@ export default function ReportListItem({
   sortDescriptor,
   setSortDescriptor,
   showSourceIcon,
+  refresh,
 }: {
   reportItem: TodoReportItem | EventReportItem | GroupReportItem;
   tieredTodoGroups: Map<TodoSourceId, TodoGroup[]> | undefined;
@@ -57,6 +58,7 @@ export default function ReportListItem({
   sortDescriptor: ReportItemSortDescriptor;
   setSortDescriptor: (newValue: ReportItemSortDescriptor) => void;
   showSourceIcon?: boolean;
+  refresh: () => Promise<unknown>;
 }): JSX.Element {
   const accessories: List.Item.Accessory[] = [];
 
@@ -153,6 +155,7 @@ export default function ReportListItem({
                     sortDescriptor={sortDescriptor}
                     setSortDescriptor={setSortDescriptor}
                     showSourceIcon={showSourceIcon}
+                    refresh={refresh}
                   />
                 ) : (
                   <TodoDetail
@@ -249,6 +252,15 @@ export default function ReportListItem({
                 />
               ))}
             </ActionPanel.Submenu>
+          </ActionPanel.Section>
+
+          <ActionPanel.Section>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+              onAction={() => void refresh()}
+            />
           </ActionPanel.Section>
         </ActionPanel>
       }

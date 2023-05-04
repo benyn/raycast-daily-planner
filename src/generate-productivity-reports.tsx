@@ -51,19 +51,22 @@ export default function Command() {
   );
 
   const { interval } = reportingPeriod;
-  const { todos, todosError, isLoadingTodos } = useTodos({ interval });
-  const { todoGroups, tieredTodoGroups, isLoadingTodoGroups } = useTodoGroups();
-  const { todoTags, isLoadingTodoTags } = useTodoTags();
-  const [isLoadingEvents, events] = useEvents<CalendarEventForReport>({
+  const { todos, todosError, isLoadingTodos, revalidateTodos } = useTodos({ interval });
+  const { todoGroups, tieredTodoGroups, isLoadingTodoGroups, revalidateTodoGroups } = useTodoGroups();
+  const { todoTags, isLoadingTodoTags, revalidateTodoTags } = useTodoTags();
+  const [isLoadingEvents, events, revalidateEvents] = useEvents<CalendarEventForReport>({
     calendars: calendarNames,
     interval,
     forReport: true,
   });
-  const { timeEntries, isLoadingTimeEntries, timeEntriesError } = useTimeEntries(timeTrackingApp, {
-    from: new Date(interval.start),
-    to: new Date(interval.end),
-    calendarName: timeEntryCalendar,
-  });
+  const { timeEntries, isLoadingTimeEntries, timeEntriesError, revalidateTimeEntries } = useTimeEntries(
+    timeTrackingApp,
+    {
+      from: new Date(interval.start),
+      to: new Date(interval.end),
+      calendarName: timeEntryCalendar,
+    }
+  );
 
   if (todosError) {
     void showErrorToast("Unable to fetch to-dos", todosError);
@@ -106,6 +109,15 @@ export default function Command() {
         <ReportingPeriodDropdown reportingPeriod={reportingPeriod} setReportingPeriod={setReportingPeriod} />
       }
       showSourceIcon={activeSourceIds.length > 1}
+      refresh={() =>
+        Promise.all([
+          revalidateTodos(),
+          revalidateTodoTags(),
+          revalidateTodoGroups(),
+          revalidateEvents(),
+          revalidateTimeEntries ? revalidateTimeEntries() : Promise.resolve(),
+        ])
+      }
     />
   );
 }
