@@ -104,10 +104,12 @@ export default function ReportListItem({
     });
   }
 
-  if (showSourceIcon && "sourceId" in reportItem && reportItem.sourceId) {
+  const isEvent = isEventReportItem(reportItem);
+
+  if (showSourceIcon && !isEvent) {
     accessories.push({
-      icon: { source: todoSourceIcon[reportItem.sourceId] },
-      tooltip: `Source: ${todoSourceApplicationName[reportItem.sourceId]}`,
+      icon: { source: reportItem.sourceId ? todoSourceIcon[reportItem.sourceId] : Icon.RaycastLogoPos },
+      tooltip: reportItem.sourceId ? `Source: ${todoSourceApplicationName[reportItem.sourceId]}` : undefined,
     });
   }
 
@@ -125,7 +127,7 @@ export default function ReportListItem({
                 tooltip: `Completed: ${format(reportItem.completionDate, "Pp")}`,
               }
             : undefined
-          : isEventReportItem(reportItem)
+          : isEvent
           ? formatInterval(reportItem)
           : reportItem.itemCount !== undefined && reportItem.childType
           ? formatItemCount(reportItem.itemCount, reportItem.childType)
@@ -134,7 +136,7 @@ export default function ReportListItem({
       accessories={accessories}
       actions={
         <ActionPanel>
-          {!isEventReportItem(reportItem) ? (
+          {!isEvent ? (
             <Action.Push
               icon={isGroupReportItem(reportItem) ? Icon.List : Icon.Sidebar}
               title={isGroupReportItem(reportItem) ? "Show Group Items" : "Show Details"}

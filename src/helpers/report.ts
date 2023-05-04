@@ -127,9 +127,8 @@ type LeafReportItemType = (typeof leafType)[keyof typeof leafType];
 
 export interface GroupReportItem extends ReportItem {
   readonly type?: ReportGroupKey["title"] | Capitalize<TodoGroupType>;
-  readonly sourceId?: TodoSourceId;
-  readonly groupType?: TodoGroupType | "tag";
   readonly icon?: Image.Source;
+  sourceId?: TodoSourceId;
   status?: ReportItemStatus;
   itemCount?: number; // count of the lowest level items, i.e., `TodoReportItem` or `EventReportItem`.
   childType?: LeafReportItemType;
@@ -761,6 +760,15 @@ function addItem(
   child: GroupReportItem | TodoReportItem | EventReportItem,
   sortValueReducer?: SortValueReducer | null
 ): void {
+  if ("sourceId" in child) {
+    if (!parent.children?.length) {
+      // Adopt `status` from the first `child`.
+      parent.sourceId = child.sourceId;
+    } else if (parent.sourceId !== child.sourceId) {
+      parent.sourceId = undefined;
+    }
+  }
+
   if ("status" in child) {
     if (!parent.children?.length) {
       parent.status = child.status;
