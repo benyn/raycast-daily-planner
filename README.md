@@ -2,7 +2,11 @@
 
 Daily Planner is a [Raycast](https://www.raycast.com) extension designed to help you take control of your time and optimize your productivity. Time block your day, track time spent on tasks, and analyze your time usage—all from the convenience of your macOS launcher. Stay focused and on track with a running timer and task title displayed in the menu bar.
 
+<<<<<<< HEAD
 ## Video
+=======
+## Overview Video
+>>>>>>> origin/main
 
 https://user-images.githubusercontent.com/105991837/236577248-a79f12b0-aa0a-4695-af9c-137775c84720.mp4
 
