@@ -1,7 +1,8 @@
 import { MutatePromise, useCachedPromise, useSQL } from "@raycast/utils";
 import { useMemo } from "react";
 import { CALENDAR_DB, getCalItemQuery, toEpochBasedDates } from "../api/calendar-sql";
-import { timeTracker } from "../api/time-tracker";
+import { timeTracker, timeTrackerErrorPref } from "../api/time-tracker";
+import { PreferenceError } from "../helpers/errors";
 import { TimeEntry } from "../types";
 
 interface UseTimeEntryOption {
@@ -34,6 +35,8 @@ function useCalendarTimeEntries(
         asTimeEntries: true,
       })
     : "";
+  // Use `useCalendars()` to check the vaildity of `calendarName` since `error === undefined` here even when
+  // `calendarName` is not matched with any of the existing calendar names.
   const { data, error, isLoading, revalidate } = useSQL<TimeEntry>(CALENDAR_DB, query, options);
   const timeEntries = useMemo(() => data?.map<TimeEntry>((entry) => toEpochBasedDates(entry)), [data]);
 
@@ -51,8 +54,10 @@ function useFetchedTimeEntries(
 ) {
   const { data, error, isLoading, revalidate, mutate } = useCachedPromise(
     async (filter: Omit<UseTimeEntryOption, "calendarName" | "url">) => {
-      if (typeof timeTracker !== "string" && timeTracker.getTimeEntries) {
+      if (timeTracker?.getTimeEntries) {
         return timeTracker.getTimeEntries(filter);
+      } else {
+        throw new PreferenceError(timeTrackerErrorPref ?? "`getTimeEntries()` undefined", "extension");
       }
     },
     [filter],
@@ -78,7 +83,7 @@ export default function useTimeEntries(
   timeEntriesError: Error | undefined;
   isLoadingTimeEntries: boolean;
   revalidateTimeEntries: (() => Promise<TimeEntry[]>) | (() => void) | undefined;
-  mutateTimeEntries: MutatePromise<TimeEntry[] | undefined> | undefined;
+  mutateTimeEntries: MutatePromise<TimeEntry[]> | undefined;
 } {
   const { calData, calError, isLoadingCal, revalidateCal } = useCalendarTimeEntries(filter, {
     execute: filter.execute !== false && app === calendar && !!filter.calendarName,
@@ -89,11 +94,13 @@ export default function useTimeEntries(
     execute: filter.execute !== false && (app === toggl || app === clockify),
   });
 
+  const isEnabled = timeTracker !== null && !calError && !fetchedError;
+
   // Use `revalidateTimeEntries` for all 3 sources and `mutateTimeEntries` for Toggl and Clockify
   // - optimistic updates are preferred since it can take up to 4 sequential network API calls in the worst case.
   // - But, `useSQL` and `useCachedPromise` `MutatePromise` type parameters are incompatible. Plus, SQL is fast.
   return {
-    timeEntries: app === calendar && !filter.calendarName ? null : calData ?? fetched,
+    timeEntries: isEnabled ? calData ?? fetched : null,
     timeEntriesError: calError ?? fetchedError,
     isLoadingTimeEntries:
       (app === calendar && isLoadingCal) || ((app === toggl || app === clockify) && isLoadingFetched),

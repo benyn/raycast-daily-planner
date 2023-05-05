@@ -15,7 +15,7 @@ import { TimeEntry, TodoSourceId, TodoStatus } from "../types";
 interface StopTimerProps {
   timeEntry: TimeEntry;
   revalidateTimeEntries: (() => Promise<TimeEntry[]>) | (() => void) | undefined;
-  mutateTimeEntries: MutatePromise<TimeEntry[] | undefined> | undefined;
+  mutateTimeEntries: MutatePromise<TimeEntry[]> | undefined;
   timeEntryTodoItem?: TodoItem;
   revalidateTodos?: (sourceId?: TodoSourceId) => Promise<void>;
 }
@@ -46,7 +46,7 @@ function StartTimerAction({
 }: {
   item: TodoItem | TaskBlockItem;
   revalidateTimeEntries: (() => Promise<TimeEntry[]>) | (() => void) | undefined;
-  mutateTimeEntries: MutatePromise<TimeEntry[] | undefined> | undefined;
+  mutateTimeEntries: MutatePromise<TimeEntry[]> | undefined;
   isTimerRunning: boolean;
   runningTimeEntryTodoItem: TodoItem | null | undefined;
   revalidateTodos: (sourceId?: TodoSourceId) => Promise<void>;
@@ -65,7 +65,7 @@ function StartTimerAction({
 
     await callFunctionShowingToasts({
       async fn() {
-        if (typeof timeTracker === "string") {
+        if (timeTracker === null) {
           throw new Error("`timeTracker` missing");
         }
 
@@ -80,7 +80,7 @@ function StartTimerAction({
             {
               optimisticUpdate(data) {
                 // The fake id & workspaceId will cause an error if this is passed to `stopTimer()` before the real one.
-                return data?.concat({
+                return data.concat({
                   id: "optimistic",
                   title: item.title,
                   start: Date.now(),
@@ -127,14 +127,14 @@ export async function stopTimer({
 }: StopTimerProps) {
   await callFunctionShowingToasts({
     async fn() {
-      if (typeof timeTracker === "string") {
+      if (timeTracker === null) {
         throw new Error("`timeTracker` missing");
       }
 
       await Promise.all([
         updateTimeEntry(timeTracker.stopTimer(timeEntry), {
           optimisticUpdate(data) {
-            return data?.map((entry) => (entry.id === timeEntry.id ? { ...entry, end: Date.now() } : entry));
+            return data.map((entry) => (entry.id === timeEntry.id ? { ...entry, end: Date.now() } : entry));
           },
           mutateTimeEntries,
           revalidateTimeEntries,
@@ -175,7 +175,7 @@ export default function TrackTimeActions({
   runningTimeEntryTodoItem?: TodoItem;
   revalidateTodos: (sourceId?: TodoSourceId) => Promise<void>;
   revalidateTimeEntries: (() => Promise<TimeEntry[]>) | (() => void) | undefined;
-  mutateTimeEntries: MutatePromise<TimeEntry[] | undefined> | undefined;
+  mutateTimeEntries: MutatePromise<TimeEntry[]> | undefined;
 }) {
   const itemRunningTimeEntry = findRunningTimeEntry(item.tracked?.items);
 

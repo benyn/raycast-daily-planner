@@ -20,7 +20,7 @@ export default function TodoListEmptyView({
   floatingRunningTimeEntry?: TimeEntry; // a running time entry not associated with any to-dos.
   alsoStartTimer?: boolean;
   revalidateTimeEntries: (() => Promise<TimeEntry[]>) | (() => void) | undefined;
-  mutateTimeEntries: MutatePromise<TimeEntry[] | undefined> | undefined;
+  mutateTimeEntries: MutatePromise<TimeEntry[]> | undefined;
 }): JSX.Element {
   const runningTimeEntryDuration = useElapsedTime(floatingRunningTimeEntry?.start);
 

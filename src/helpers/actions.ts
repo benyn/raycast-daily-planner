@@ -108,9 +108,9 @@ export async function updateTimeEntry<T extends TimeEntry | undefined>(
     revalidateTimeEntries,
     url,
   }: {
-    optimisticUpdate?: (data: TimeEntry[] | undefined) => TimeEntry[] | undefined;
-    mutateTimeEntries?: MutatePromise<TimeEntry[] | undefined, TimeEntry[] | undefined, T>;
-    mutateDetailTimeEntries?: MutatePromise<TimeEntry[] | undefined, TimeEntry[] | undefined, T>;
+    optimisticUpdate?: (data: TimeEntry[]) => TimeEntry[];
+    mutateTimeEntries?: MutatePromise<TimeEntry[], TimeEntry[], T>;
+    mutateDetailTimeEntries?: MutatePromise<TimeEntry[], TimeEntry[], T>;
     revalidateTimeEntries: (() => Promise<TimeEntry[]>) | (() => void) | undefined;
     url?: string;
   }

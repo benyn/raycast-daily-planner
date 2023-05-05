@@ -66,7 +66,7 @@ export default function EditTodoForm({
   revalidateTodos: (sourceId?: TodoSourceId) => Promise<void>;
   revalidateUpcomingEvents: (() => Promise<CalendarEvent[]>) | undefined;
   revalidateTimeEntries: (() => Promise<TimeEntry[]>) | (() => void) | undefined;
-  mutateTimeEntries: MutatePromise<TimeEntry[] | undefined> | undefined;
+  mutateTimeEntries: MutatePromise<TimeEntry[]> | undefined;
 }): JSX.Element {
   const { pop } = useNavigation();
 
@@ -151,12 +151,12 @@ export default function EditTodoForm({
               : Promise.resolve(),
 
             // Update time entry titles.
-            (title || diffs.group || diffs.tags) && typeof timeTracker !== "string"
+            (title || diffs.group || diffs.tags) && timeTracker !== null
               ? updateTimeEntry(timeTracker.updateTimeEntries(todoItem.id, toTimeEntryValues(diffs)), {
                   optimisticUpdate(data) {
                     if (!joinedTimeEntryIds || !title) return data;
                     const timeEntryIds = joinedTimeEntryIds.split(",");
-                    return data?.map((entry) =>
+                    return data.map((entry) =>
                       timeEntryIds.includes(entry.id.toString()) ? { ...entry, title: title } : entry
                     );
                   },
@@ -180,7 +180,7 @@ export default function EditTodoForm({
           title: "Start Timer",
           shortcut: { modifiers: ["cmd"], key: "t" },
           onAction: (toast) => {
-            if (typeof timeTracker !== "string") {
+            if (timeTracker !== null) {
               const dataForTimeTracker = {
                 title: diffs.title ?? todoItem.title,
                 group: diffs.group ?? todoItem.group ?? undefined,

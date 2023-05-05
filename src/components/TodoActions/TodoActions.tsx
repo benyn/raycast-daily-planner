@@ -76,8 +76,8 @@ export default function TodoActions({
   revalidateBlocks: () => Promise<Block[]>;
   revalidateUpcomingEvents: (() => Promise<CalendarEvent[]>) | undefined;
   revalidateTimeEntries: (() => Promise<TimeEntry[]>) | (() => void) | undefined;
-  mutateTimeEntries: MutatePromise<TimeEntry[] | undefined> | undefined;
-  mutateDetailTimeEntries?: MutatePromise<TimeEntry[] | undefined> | undefined;
+  mutateTimeEntries: MutatePromise<TimeEntry[]> | undefined;
+  mutateDetailTimeEntries?: MutatePromise<TimeEntry[]> | undefined;
   getDetail?: () => JSX.Element;
 }): JSX.Element {
   const { pop } = useNavigation();
@@ -151,7 +151,7 @@ export default function TodoActions({
       [TodoStatus.completed, TodoStatus.canceled].includes(newValue) &&
       itemRunningTimeEntry &&
       (revalidateTimeEntries || mutateTimeEntries) &&
-      typeof timeTracker !== "string" &&
+      timeTracker !== null &&
       (await confirmAlert({
         icon: Icon.Stopwatch,
         title: "To-do in Progress",
@@ -175,7 +175,7 @@ export default function TodoActions({
       timerUpdate
         ? updateTimeEntry(timerUpdate, {
             optimisticUpdate(data) {
-              return data?.map((entry) =>
+              return data.map((entry) =>
                 entry.id === itemRunningTimeEntry?.id ? { ...entry, end: Date.now() } : entry
               );
             },
@@ -234,10 +234,10 @@ export default function TodoActions({
                 })()
               : Promise.resolve(0),
 
-            alsoDeleteEventsAndEntries && typeof timeTracker !== "string"
+            alsoDeleteEventsAndEntries && timeTracker !== null
               ? updateTimeEntry(timeTracker.deleteTimeEntries(todoItem.id), {
                   optimisticUpdate(data) {
-                    return data?.filter(({ title }) => title !== todoItem.title);
+                    return data.filter(({ title }) => title !== todoItem.title);
                   },
                   mutateTimeEntries,
                   revalidateTimeEntries,

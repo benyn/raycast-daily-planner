@@ -11,7 +11,7 @@ import {
 import { useSQL } from "@raycast/utils";
 import { useState } from "react";
 import { CALENDAR_DB, getCalItemQuery, toEpochBasedDates } from "./api/calendar-sql";
-import { timeTracker } from "./api/time-tracker";
+import { timeTracker, timeTrackerErrorPref } from "./api/time-tracker";
 import { endOfToday, formatDuration, formatInterval, now } from "./helpers/datetime";
 import { shortcut } from "./helpers/shortcut";
 import {
@@ -43,6 +43,12 @@ const truncate = (text: string, maxLength: number) => {
   return text.slice(0, maxLength).trim() + ellipsis;
 };
 
+async function showTimeTrackerErrorHUD() {
+  await showHUD(
+    `❌ "${timeTrackerErrorPref ?? ""}" is missing or invalid. Please update it in Raycast Settings and try again.`
+  );
+}
+
 export default function RunningTimer() {
   const [runningTimer, setRunningTimer] = useState(getCachedRunningTimer);
   const [pausedTimer, setPausedTimer] = useState(getCachedPausedTimer);
@@ -72,8 +78,8 @@ export default function RunningTimer() {
   });
 
   async function stopTimer() {
-    if (typeof timeTracker === "string") {
-      await showHUD(`❌ "${timeTracker}" is missing or invalid. Please update it in Raycast Settings and try again.`);
+    if (timeTracker === null) {
+      await showTimeTrackerErrorHUD();
       return;
     }
 
@@ -107,8 +113,8 @@ export default function RunningTimer() {
   }
 
   async function startTimer(url: Block["url"], title: Block["title"]) {
-    if (typeof timeTracker === "string") {
-      await showHUD(`❌ "${timeTracker}" is missing or invalid. Please update it in Raycast Settings and try again.`);
+    if (timeTracker === null) {
+      await showTimeTrackerErrorHUD();
       return;
     }
 
@@ -122,8 +128,8 @@ export default function RunningTimer() {
   }
 
   async function resumeTimer() {
-    if (typeof timeTracker === "string") {
-      await showHUD(`❌ "${timeTracker}" is missing or invalid. Please update it in Raycast Settings and try again.`);
+    if (timeTracker === null) {
+      await showTimeTrackerErrorHUD();
       return;
     }
 

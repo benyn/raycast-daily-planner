@@ -40,7 +40,7 @@ export default function TodoList({
   revalidateBlocks: () => Promise<Block[]>;
   revalidateUpcomingEvents?: () => Promise<CalendarEvent[]>;
   revalidateTimeEntries?: (() => Promise<TimeEntry[]>) | (() => void);
-  mutateTimeEntries?: MutatePromise<TimeEntry[] | undefined>;
+  mutateTimeEntries?: MutatePromise<TimeEntry[]>;
   searchBarAccessory?: JSX.Element;
   getPrimaryActions: (item: TodoItem | TaskBlockItem, parentBlock?: Block) => JSX.Element;
 }): JSX.Element {

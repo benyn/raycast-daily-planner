@@ -43,7 +43,7 @@ export default function MoveSubmenu({
       data: { group },
       prerequisiteIds: todoItem.childIds,
       sideEffect:
-        group.type === "project" && isSyncingProjects && typeof timeTracker !== "string"
+        group.type === "project" && isSyncingProjects && timeTracker !== null
           ? timeTracker.updateTimeEntries(todoItem.id, { projectName })
           : undefined,
       initTitle: (isMoving ? "Moving to " : "Detaching from ") + displayTitle,

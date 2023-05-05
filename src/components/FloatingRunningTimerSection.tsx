@@ -15,7 +15,7 @@ export default function FloatingRunningTimerSection({
 }: {
   floatingRunningTimeEntry: TimeEntry | undefined;
   revalidateTimeEntries: (() => Promise<TimeEntry[]>) | (() => void) | undefined;
-  mutateTimeEntries: MutatePromise<TimeEntry[] | undefined> | undefined;
+  mutateTimeEntries: MutatePromise<TimeEntry[]> | undefined;
 }): JSX.Element {
   const runningTimeEntryDuration = useElapsedTime(floatingRunningTimeEntry?.start);
 

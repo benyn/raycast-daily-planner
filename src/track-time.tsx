@@ -9,7 +9,7 @@ import {
   openExtensionPreferences,
 } from "@raycast/api";
 import { useEffect, useMemo, useState } from "react";
-import { timeTracker } from "./api/time-tracker";
+import { timeTrackerErrorPref } from "./api/time-tracker";
 import TaskBlockActions from "./components/TaskBlockActions";
 import TodoList from "./components/TodoList";
 import TodoListDropdown, { initialList } from "./components/TodoListDropdown";
@@ -190,8 +190,8 @@ export default function Command({ launchContext }: LaunchProps<{ launchContext: 
   });
   const runningTimeEntry = isShowingAlert && !isLoadingTimeEntries ? findRunningTimeEntry(timeEntries) : undefined;
 
-  return typeof timeTracker === "string" ? (
-    <APIKeyErrorView missingKey={timeTracker} />
+  return timeTrackerErrorPref ? (
+    <APIKeyErrorView missingKey={timeTrackerErrorPref} />
   ) : permissionView ? (
     permissionView
   ) : (

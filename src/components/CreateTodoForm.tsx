@@ -83,7 +83,7 @@ export function CreateTodoForm({
           await Promise.all([
             revalidateTodos(primaryTodoSourceId),
 
-            typeof timeTracker !== "string" && revalidateTimeEntries && resetList
+            timeTracker !== null && revalidateTimeEntries && resetList
               ? updateTimeEntry(timeTracker.startTimer(url, toTimeEntryValues(formData)), {
                   revalidateTimeEntries,
                   url,
@@ -108,7 +108,7 @@ export function CreateTodoForm({
           title: "Start Timer",
           shortcut: { modifiers: ["cmd"], key: "t" },
           onAction: (toast) => {
-            if (typeof timeTracker !== "string") {
+            if (timeTracker !== null) {
               void Promise.all([
                 updateTimeEntry(timeTracker.startTimer(url, toTimeEntryValues(formData)), {
                   revalidateTimeEntries,

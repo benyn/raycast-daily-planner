@@ -64,7 +64,7 @@ export default function TodoDetail({
   revalidateListBlocks?: () => Promise<Block[]>;
   revalidateListUpcomingEvents?: () => Promise<CalendarEvent[]>;
   revalidateListTimeEntries?: (() => Promise<TimeEntry[]>) | (() => void);
-  mutateListTimeEntries?: MutatePromise<TimeEntry[] | undefined>;
+  mutateListTimeEntries?: MutatePromise<TimeEntry[]>;
   getCreateTodoAction?: () => JSX.Element;
 }): JSX.Element {
   const { todo, isLoadingTodo, revalidateTodo } = useDetailedTodo(listTodoItem);

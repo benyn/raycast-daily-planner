@@ -23,7 +23,7 @@ export default function TagSubmenu({
     await updateTodo({
       data: { tags },
       sideEffect:
-        isSyncingTags && typeof timeTracker !== "string"
+        isSyncingTags && timeTracker !== null
           ? timeTracker.updateTimeEntries(todoItem.id, { tagNames: tags.map(({ name }) => name) })
           : undefined,
       initTitle: "Adding tag",
@@ -38,7 +38,7 @@ export default function TagSubmenu({
     await updateTodo({
       data: { tags },
       sideEffect:
-        isSyncingTags && typeof timeTracker !== "string"
+        isSyncingTags && timeTracker !== null
           ? timeTracker.updateTimeEntries(todoItem.id, { tagNames: tags?.map(({ name }) => name) ?? [] })
           : undefined,
       initTitle: "Removing tag",

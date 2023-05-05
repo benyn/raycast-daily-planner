@@ -60,7 +60,7 @@ export default function TodoListItem({
   revalidateBlocks: () => Promise<Block[]>;
   revalidateUpcomingEvents: (() => Promise<CalendarEvent[]>) | undefined;
   revalidateTimeEntries: (() => Promise<TimeEntry[]>) | (() => void) | undefined;
-  mutateTimeEntries: MutatePromise<TimeEntry[] | undefined> | undefined;
+  mutateTimeEntries: MutatePromise<TimeEntry[]> | undefined;
   getPrimaryActions: (item: TodoItem | TaskBlockItem, parentBlock?: Block) => JSX.Element;
   getCreateTodoAction: () => JSX.Element;
   showSourceIcon?: boolean;
