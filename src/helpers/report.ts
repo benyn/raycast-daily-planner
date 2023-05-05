@@ -37,20 +37,19 @@ export const reportGroupKey = {
 export type ReportGroupKey = (typeof reportGroupKey)[keyof typeof reportGroupKey];
 
 export const reportItemStatus = {
-  completedAsPlanned: "Completed as Planned",
+  completedAsScheduled: "Completed as Scheduled",
   completedSpontaneously: "Completed Spontaneously",
-  completed: "Completed", // Calendar only (groupBySpontaneity === false)
-  progressingAsPlanned: "Progressing as Planned",
+  completed: "Completed",
+  progressingAsScheduled: "Progressing as Scheduled",
   progressingSpontaneously: "Progressing Spontaneously",
-  progressing: "Progressing", // Calendar only (groupBySpontaneity === false)
-  missed: "Missed",
+  progressing: "Progressing",
   upcoming: "Upcoming",
-  // Time Tracker only (groupByTodoStatus === false)
-  planned: "Completed/Progressing as Planned",
+  missed: "Missed",
+  // Below are currently unused
+  scheduled: "Completed/Progressing as Scheduled",
   spontaneous: "Completed/Progressing Spontaneously",
-  // No grouping
   todos: "To-dos",
-  unreported: "Unreported",
+  canceled: "Canceled",
 } as const;
 
 export type ReportItemStatus = (typeof reportItemStatus)[keyof typeof reportItemStatus];
@@ -267,48 +266,42 @@ function getReportItemStatus(
 ): ReportItemStatus {
   switch (todoStatus) {
     case TodoStatus.completed:
-      if (hasBlocks) {
-        if (groupBySpontaneity) {
-          // if (hasTimeEntries) {
-          //   return groupByTodoStatus ? reportItemStatus.completedAsPlanned : reportItemStatus.planned;
-          // }
-          return groupByTodoStatus ? reportItemStatus.completedAsPlanned : reportItemStatus.planned;
-        }
-        return groupByTodoStatus ? reportItemStatus.completed : reportItemStatus.todos;
-      }
       if (groupBySpontaneity) {
-        // if (hasTimeEntries) {
+        if (hasBlocks) {
+          return groupByTodoStatus ? reportItemStatus.completedAsScheduled : reportItemStatus.scheduled;
+        }
         return groupByTodoStatus ? reportItemStatus.completedSpontaneously : reportItemStatus.spontaneous;
-        // }
-        // // assumed to be bunched-together mini-tasks, e.g., take vitamins
-        // return reportItemStatus[groupByTodoStatus ? "completedAsPlanned" : "planned"];
       }
       return groupByTodoStatus ? reportItemStatus.completed : reportItemStatus.todos;
 
     case TodoStatus.open:
-      if (hasBlocks) {
-        if (groupBySpontaneity) {
+      if (groupBySpontaneity) {
+        if (hasBlocks) {
           if (hasTimeEntries) {
-            return groupByTodoStatus ? reportItemStatus.progressingAsPlanned : reportItemStatus.planned;
+            return groupByTodoStatus ? reportItemStatus.progressingAsScheduled : reportItemStatus.scheduled;
           }
-          // PENDING if the event hasn't started yet?
           return groupByTodoStatus
             ? isPastScheduledBlocks
               ? reportItemStatus.missed
               : reportItemStatus.upcoming
-            : reportItemStatus.planned;
+            : reportItemStatus.scheduled;
         }
-        return groupByTodoStatus ? reportItemStatus.progressing : reportItemStatus.todos;
-      }
-      if (groupBySpontaneity) {
         if (hasTimeEntries) {
           return groupByTodoStatus ? reportItemStatus.progressingSpontaneously : reportItemStatus.spontaneous;
         }
-        return reportItemStatus.unreported;
+        return groupByTodoStatus ? reportItemStatus.missed : reportItemStatus.todos;
       }
-      return reportItemStatus.unreported;
+
+      if (hasBlocks) {
+        return groupByTodoStatus
+          ? isPastScheduledBlocks
+            ? reportItemStatus.progressing
+            : reportItemStatus.upcoming
+          : reportItemStatus.todos;
+      }
+      return groupByTodoStatus ? reportItemStatus.missed : reportItemStatus.todos;
   }
-  return reportItemStatus.unreported;
+  return reportItemStatus.canceled;
 }
 
 const now = Date.now();
@@ -741,7 +734,7 @@ function toEventReportItem(
 
 export function isCompleted(status: ReportItemStatus): boolean {
   return (
-    status === reportItemStatus.completedAsPlanned ||
+    status === reportItemStatus.completedAsScheduled ||
     status === reportItemStatus.completedSpontaneously ||
     status === reportItemStatus.completed
   );
@@ -749,7 +742,7 @@ export function isCompleted(status: ReportItemStatus): boolean {
 
 export function isProgressing(status: ReportItemStatus): boolean {
   return (
-    status === reportItemStatus.progressingAsPlanned ||
+    status === reportItemStatus.progressingAsScheduled ||
     status === reportItemStatus.progressingSpontaneously ||
     status === reportItemStatus.progressing
   );

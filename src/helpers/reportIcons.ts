@@ -16,12 +16,12 @@ type ScalePercentageBin = `one${"1" | "2" | "4" | "8" | "16" | "32"}th` | "zero"
 export const gray = { light: "#767473", dark: "#9E9B9A" };
 
 const reportItemStatusIcon: Record<ReportItemStatus, { light: string; dark: string }> = {
-  [reportItemStatus.completedAsPlanned]: { light: "light/check-square.svg", dark: "dark/check-square.svg" },
+  [reportItemStatus.completedAsScheduled]: { light: "light/check-square.svg", dark: "dark/check-square.svg" },
   [reportItemStatus.completedSpontaneously]: {
     light: "light/check-lightning-square.svg",
     dark: "dark/check-lightning-square.svg",
   },
-  [reportItemStatus.progressingAsPlanned]: {
+  [reportItemStatus.progressingAsScheduled]: {
     light: "light/chevron-right-square.svg",
     dark: "dark/chevron-right-square.svg",
   },
@@ -33,10 +33,11 @@ const reportItemStatusIcon: Record<ReportItemStatus, { light: string; dark: stri
   [reportItemStatus.upcoming]: { light: "light/square.svg", dark: "dark/square.svg" },
   [reportItemStatus.completed]: { light: "light/check-square.svg", dark: "dark/check-square.svg" },
   [reportItemStatus.progressing]: { light: "light/chevron-right-square.svg", dark: "dark/chevron-right-square.svg" },
-  [reportItemStatus.planned]: { light: "light/square.svg", dark: "dark/square.svg" },
+  [reportItemStatus.scheduled]: { light: "light/square.svg", dark: "dark/square.svg" },
   [reportItemStatus.spontaneous]: { light: "light/lightning-square.svg", dark: "dark/lightning-square.svg" },
   [reportItemStatus.todos]: { light: "light/square.svg", dark: "dark/square.svg" },
-  [reportItemStatus.unreported]: { light: "light/square.svg", dark: "dark/square.svg" },
+  // "canceled" is currently not displayed. Should it be displayed, create `xmark-square.svg` icons.
+  [reportItemStatus.canceled]: { light: "light/xmark-square-small.svg", dark: "dark/xmark-square-small.svg" },
 };
 
 const scaleIcon: Record<ScalePercentageBin, Image.Source> = {
@@ -86,7 +87,7 @@ export function getReportItemIcon(
         source: status ? reportItemStatusIcon[status] : icon ?? Icon.Dot,
         tintColor:
           status === reportItemStatus.completed ||
-          status === reportItemStatus.completedAsPlanned ||
+          status === reportItemStatus.completedAsScheduled ||
           status === reportItemStatus.completedSpontaneously
             ? Color.Green
             : gray,
