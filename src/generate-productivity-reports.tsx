@@ -4,6 +4,7 @@ import { useState } from "react";
 import { activeSourceIds } from "./api/todo-source";
 import ReportingPeriodDropdown, { initialReportingPeriod } from "./components/ReportingPeriodDropdown";
 import ReportList from "./components/ReportList";
+import ScopedPermissionView from "./components/ScopedPermissionView";
 import { showErrorToast } from "./helpers/errors";
 import {
   buildReport,
@@ -51,7 +52,7 @@ export default function Command() {
   );
 
   const { interval } = reportingPeriod;
-  const { todos, todosError, isLoadingTodos, revalidateTodos } = useTodos({ interval });
+  const { todos, todosError, isLoadingTodos, revalidateTodos, permissionView } = useTodos({ interval });
   const { todoGroups, tieredTodoGroups, isLoadingTodoGroups, revalidateTodoGroups } = useTodoGroups();
   const { todoTags, isLoadingTodoTags, revalidateTodoTags } = useTodoTags();
   const [isLoadingEvents, events, revalidateEvents] = useEvents<CalendarEventForReport>({
@@ -67,6 +68,10 @@ export default function Command() {
       calendarName: timeEntryCalendar,
     }
   );
+
+  if (permissionView) {
+    return <ScopedPermissionView scope="Reminders" />;
+  }
 
   if (todosError) {
     void showErrorToast("Unable to fetch to-dos", todosError);

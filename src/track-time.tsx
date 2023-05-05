@@ -10,6 +10,7 @@ import {
 } from "@raycast/api";
 import { useEffect, useMemo, useState } from "react";
 import { timeTrackerErrorPref } from "./api/time-tracker";
+import ScopedPermissionView from "./components/ScopedPermissionView";
 import TaskBlockActions from "./components/TaskBlockActions";
 import TodoList from "./components/TodoList";
 import TodoListDropdown, { initialList } from "./components/TodoListDropdown";
@@ -56,10 +57,10 @@ function APIKeyErrorView({ missingKey }: { missingKey: string }): JSX.Element {
   );
 }
 
-function TrackTime(stoppableRunningTimeEntry?: TimeEntry) {
+function TrackTime({ stoppableRunningTimeEntry }: { stoppableRunningTimeEntry?: TimeEntry }) {
   const [list, setList] = useState(initialList);
 
-  const { todos, todosError, isLoadingTodos, revalidateTodos } = useTodos({ list });
+  const { todos, todosError, isLoadingTodos, revalidateTodos, permissionView } = useTodos({ list });
   const { todoGroups, tieredTodoGroups, isLoadingTodoGroups } = useTodoGroups();
   const { todoTags, isLoadingTodoTags } = useTodoTags();
   const [isLoadingBlocks, blocks, revalidateBlocks] = useEvents<Block>({
@@ -75,14 +76,6 @@ function TrackTime(stoppableRunningTimeEntry?: TimeEntry) {
       from: startOfToday < twelveHoursAgo ? startOfToday : twelveHoursAgo,
       calendarName: timeEntryCalendar,
     });
-
-  if (todosError) {
-    void showErrorToast("Unable to fetch to-dos", todosError);
-  }
-
-  if (timeEntriesError) {
-    void showErrorToast("Unable to fetch time entries", timeEntriesError);
-  }
 
   const sectionedTodoItems = useMemo(
     () =>
@@ -120,6 +113,18 @@ function TrackTime(stoppableRunningTimeEntry?: TimeEntry) {
         .catch((error) => console.error(error));
     }
   }, [mutateTimeEntries, revalidateTimeEntries, stoppableRunningTimeEntry]);
+
+  if (permissionView) {
+    return <ScopedPermissionView scope="Reminders" />;
+  }
+
+  if (todosError) {
+    void showErrorToast("Unable to fetch to-dos", todosError);
+  }
+
+  if (timeEntriesError) {
+    void showErrorToast("Unable to fetch time entries", timeEntriesError);
+  }
 
   return (
     <TodoList
@@ -193,8 +198,8 @@ export default function Command({ launchContext }: LaunchProps<{ launchContext: 
   return timeTrackerErrorPref ? (
     <APIKeyErrorView missingKey={timeTrackerErrorPref} />
   ) : permissionView ? (
-    permissionView
+    <ScopedPermissionView scope="Calendars" />
   ) : (
-    TrackTime(runningTimeEntry)
+    <TrackTime stoppableRunningTimeEntry={runningTimeEntry} />
   );
 }

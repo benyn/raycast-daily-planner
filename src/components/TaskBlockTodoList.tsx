@@ -157,7 +157,7 @@ function TaskBlockTodoListWithProps(props: TaskBlockTodoListProps): JSX.Element 
   return <TaskBlockTodoListWithTodoAndEventIds todoIdsBySource={todoIdsBySource} eventIds={eventIds} {...props} />;
 }
 
-function TaskBlockTodoListWithIds(sourceIdedTodoIds: string[]): JSX.Element {
+function TaskBlockTodoListWithIds({ sourceIdedTodoIds }: { sourceIdedTodoIds: string[] }): JSX.Element {
   const todoIdsBySource = useMemo(() => {
     const todoIdsBySource = new Map<TodoSourceId, Todo["todoId"][]>();
     for (const id of sourceIdedTodoIds) {
@@ -208,6 +208,12 @@ function TaskBlockTodoListWithIds(sourceIdedTodoIds: string[]): JSX.Element {
   );
 }
 
-export default function TaskBlockTodoList(propsOrIds: TaskBlockTodoListProps | string[]): JSX.Element {
-  return Array.isArray(propsOrIds) ? TaskBlockTodoListWithIds(propsOrIds) : TaskBlockTodoListWithProps(propsOrIds);
+export default function TaskBlockTodoList(
+  propsOrIds: TaskBlockTodoListProps | { sourceIdedTodoIds: string[] }
+): JSX.Element {
+  return "sourceIdedTodoIds" in propsOrIds ? (
+    <TaskBlockTodoListWithIds {...propsOrIds} />
+  ) : (
+    <TaskBlockTodoListWithProps {...propsOrIds} />
+  );
 }

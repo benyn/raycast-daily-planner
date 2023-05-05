@@ -57,7 +57,7 @@ function useFetchedTimeEntries(
       if (timeTracker?.getTimeEntries) {
         return timeTracker.getTimeEntries(filter);
       } else {
-        throw new PreferenceError(timeTrackerErrorPref ?? "`getTimeEntries()` undefined", "extension");
+        throw new PreferenceError(`Missing or invalid ${timeTrackerErrorPref ?? "getTimeEntries()"}`, "extension");
       }
     },
     [filter],

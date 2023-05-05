@@ -27,13 +27,14 @@ interface UseTodosParams {
 function useReminders(filter: QueryFilter, { execute }: { execute: boolean }) {
   const path = getRemindersDBPath();
   const query = getRemindersTodoQuery(filter);
-  const { isLoading, data, error, revalidate } = useSQL<Reminder>(path, query, { execute: execute });
+  const { isLoading, data, error, revalidate, permissionView } = useSQL<Reminder>(path, query, { execute: execute });
   const todos = useMemo(() => data?.map((task) => parseReminder(task)), [data]);
   return {
     isLoadingReminders: isLoading,
     remindersTodos: todos,
     remindersError: error,
     revalidateReminders: revalidate,
+    permissionView,
   };
 }
 
@@ -80,11 +81,12 @@ export default function useTodos(params: UseTodosParams): {
   todosError: Error | undefined;
   isLoadingTodos: boolean;
   revalidateTodos: (sourceId?: TodoSourceId) => Promise<void>;
+  permissionView: JSX.Element | undefined;
 } {
   const filters = toQueryFilters(params);
 
   const remindersFilter = filters.get(todoSourceId.reminders);
-  const { isLoadingReminders, remindersTodos, remindersError, revalidateReminders } = useReminders(
+  const { isLoadingReminders, remindersTodos, remindersError, revalidateReminders, permissionView } = useReminders(
     remindersFilter ?? {},
     {
       execute: !!remindersFilter,
@@ -122,5 +124,6 @@ export default function useTodos(params: UseTodosParams): {
     todosError: remindersError ?? thingsError ?? todoistError,
     isLoadingTodos: isLoadingReminders || isLoadingThings || isLoadingTodoist,
     revalidateTodos: revalidateTodos,
+    permissionView,
   };
 }

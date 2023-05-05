@@ -2,6 +2,7 @@ import { getPreferenceValues, LaunchProps } from "@raycast/api";
 import { useMemo, useState } from "react";
 import { isTaskBlock } from "./api/todo-source";
 import BlockTimeActions from "./components/BlockTimeActions";
+import ScopedPermissionView from "./components/ScopedPermissionView";
 import TaskBlockActions from "./components/TaskBlockActions";
 import TaskBlockTodoList from "./components/TaskBlockTodoList";
 import TodoList from "./components/TodoList";
@@ -32,10 +33,10 @@ export const calendars = eventCalendars ? [blockCalendar, ...eventCalendars.spli
 export const defaultDuration = parseInt(defaultBlockDuration);
 export const [offHours, prefError] = getOffHours(workingHoursStart, workingHoursEnd, restOfTodayAndNextSevenDays);
 
-function BlockTime(isLoadingCalendars: boolean) {
+function BlockTime({ isLoadingCalendars }: { isLoadingCalendars: boolean }) {
   const [list, setList] = useState(initialList);
 
-  const { todos, todosError, isLoadingTodos, revalidateTodos } = useTodos({ list });
+  const { todos, todosError, isLoadingTodos, revalidateTodos, permissionView } = useTodos({ list });
   const { todoGroups, tieredTodoGroups, isLoadingTodoGroups } = useTodoGroups();
   const { todoTags, isLoadingTodoTags } = useTodoTags();
   const [isLoadingBlocks, blocks, revalidateBlocks] = useEvents<Block>({
@@ -62,6 +63,10 @@ function BlockTime(isLoadingCalendars: boolean) {
   );
 
   const availableTimes = useMemo(() => getAvailableTimes(upcomingEvents, offHours), [upcomingEvents]);
+
+  if (permissionView) {
+    return <ScopedPermissionView scope="Reminders" />;
+  }
 
   if (prefError) {
     void showErrorToast("Invalid Working Hours", prefError);
@@ -123,9 +128,11 @@ export default function Command({ launchContext }: LaunchProps<{ launchContext: 
     void (async () => await showCalendarNotFoundToast(missingCalendarNames))();
   }
 
-  return permissionView
-    ? permissionView
-    : launchContext?.ids && launchContext.ids.length > 0
-    ? TaskBlockTodoList(launchContext.ids)
-    : BlockTime(isLoadingCalendars);
+  return permissionView ? (
+    <ScopedPermissionView scope="Calendars" />
+  ) : launchContext?.ids && launchContext.ids.length > 0 ? (
+    <TaskBlockTodoList sourceIdedTodoIds={launchContext.ids} />
+  ) : (
+    <BlockTime isLoadingCalendars={isLoadingCalendars} />
+  );
 }
