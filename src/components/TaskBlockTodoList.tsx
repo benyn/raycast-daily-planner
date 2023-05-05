@@ -1,4 +1,4 @@
-import { getPreferenceValues } from "@raycast/api";
+import { getPreferenceValues, List } from "@raycast/api";
 import { useMemo } from "react";
 import { activeSourceIds, createTaskBlockURL, parseSourceIdedTodoId, SourceIdedTodoId } from "../api/todo-source";
 import { findRunningTimeEntry } from "../helpers/actions";
@@ -64,8 +64,10 @@ function TaskBlockTodoListWithTodoAndEventIds({
 
   const runningTimeEntry = taskBlockRunningTimeEntry ?? findRunningTimeEntry(rootTaskBlockItem?.tracked?.items);
 
-  const taskBlockItem =
-    buildTaskBlockTodoList(todos, tieredTodoGroups, todoTags, blocks, runningTimeEntry) ?? rootTaskBlockItem;
+  const localTaskBlockItem = todos?.length
+    ? buildTaskBlockTodoList(todos, tieredTodoGroups, todoTags, blocks, runningTimeEntry)
+    : null;
+  const taskBlockItem = localTaskBlockItem ?? rootTaskBlockItem;
 
   const revalidateAllBlocks = async () => {
     const [blocks] = await Promise.all([revalidateBlocks(), revalidateRootBlocks ? revalidateRootBlocks() : []]);
@@ -110,6 +112,24 @@ function TaskBlockTodoListWithTodoAndEventIds({
           ) : null}
         </>
       )}
+      emptyView={
+        <List.EmptyView
+          title="No To-Dos Found"
+          description={
+            !todos || todos.length === 0
+              ? `None of the ${todoIdsBySource.size} to-do${
+                  todoIdsBySource.size === 1 ? "" : "s"
+                } intended for this task block were found in the database. They may have been deleted since the task block's creation, or the to-do IDs in the task block URL could be corrupted.`
+              : !blocks || blocks.length === 0
+              ? `None of the ${eventIds?.length ?? 0} calendar event${
+                  eventIds?.length === 1 ? "" : "s"
+                } created for this task block were found in the database.`
+              : `Task block could not be reconstructed. (${todos.length} to-do${todos.length === 1 ? "" : "s"}, ${
+                  blocks.length
+                } block${blocks.length === 1 ? "" : "s"})`
+          }
+        />
+      }
     />
   );
 }

@@ -26,6 +26,7 @@ export default function TodoList({
   mutateTimeEntries,
   searchBarAccessory,
   getPrimaryActions,
+  emptyView,
 }: {
   sectionedListItems: SectionedListItems<TodoItem | TaskBlockItem> | undefined;
   listName?: string;
@@ -43,6 +44,7 @@ export default function TodoList({
   mutateTimeEntries?: MutatePromise<TimeEntry[]>;
   searchBarAccessory?: JSX.Element;
   getPrimaryActions: (item: TodoItem | TaskBlockItem, parentBlock?: Block) => JSX.Element;
+  emptyView?: JSX.Element;
 }): JSX.Element {
   const [searchText, setSearchText] = useState("");
 
@@ -68,15 +70,17 @@ export default function TodoList({
       searchText={searchText}
       onSearchTextChange={setSearchText}
     >
-      <TodoListEmptyView
-        listName={listName}
-        searchText={searchText}
-        floatingRunningTimeEntry={floatingRunningTimeEntry}
-        alsoStartTimer={!!revalidateTimeEntries}
-        getCreateTodoAction={getCreateTodoAction}
-        revalidateTimeEntries={revalidateTimeEntries}
-        mutateTimeEntries={mutateTimeEntries}
-      />
+      {emptyView ?? (
+        <TodoListEmptyView
+          listName={listName}
+          searchText={searchText}
+          floatingRunningTimeEntry={floatingRunningTimeEntry}
+          alsoStartTimer={!!revalidateTimeEntries}
+          getCreateTodoAction={getCreateTodoAction}
+          revalidateTimeEntries={revalidateTimeEntries}
+          mutateTimeEntries={mutateTimeEntries}
+        />
+      )}
 
       {sectionedListItems &&
       sectionedListItems.length > 0 &&
