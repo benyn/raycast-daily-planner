@@ -32,6 +32,28 @@ https://user-images.githubusercontent.com/105991837/236577248-a79f12b0-aa0a-4695
 4. If you wish to use time tracking, you'll need to provide a few more details. When you launch the "Track Time for To-Dos" command for the first time, you'll be prompted to enter these data points in the Raycast Extension Settings. Start by selecting your preferred method (Calendar, Toggl, or Clockify). If you choose Calendar, enter the name of the calendar for time tracking, ideally different from the one used for Time Blocking Calendar. If you opt for Toggl or Clockify, input the corresponding API key.
 5. Time block your day, track time, review your productivity, and repeat!
 
+## 🔗 Integrations
+
+### To-Do List Apps
+
+- [Reminders](https://www.icloud.com/reminders)
+- [Things](https://culturedcode.com/things/)
+- [Todoist](https://todoist.com/)
+
+### Calendar
+
+Any calendars set up on macOS, including but not limited to:
+
+- [iCloud Calendar](https://www.icloud.com/calendar)
+- [Google Calendar](https://calendar.google.com/)
+- [Outlook Calendar](https:/outlook.live.com/)
+
+### Time Tracking Apps
+
+- [Calendar](https://support.apple.com/guide/calendar/welcome/mac) (Time entries are created as calendar events on a dedicated calendar)
+- [Toggl Track](https://toggl.com/track/)
+- [Clockify](https://clockify.me)
+
 ## 💡 Usage
 
 [View the documentation](https://benyn.github.io/raycast-daily-planner) for usage information.
