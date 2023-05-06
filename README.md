@@ -58,7 +58,7 @@ Any calendars set up on macOS, including but not limited to:
 
 ---
 
-[View the **documentation**](https://benyn.github.io/raycast-daily-planner) for usage information.
+[View the **DOCUMENTATION**](https://benyn.github.io/raycast-daily-planner) for usage information.
 
 ---
 
