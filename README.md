@@ -2,7 +2,7 @@
 
 Daily Planner is a [Raycast](https://www.raycast.com) extension designed to help you take control of your time and optimize your productivity. Time block your day, track time spent on tasks, and analyze your time usage—all from the convenience of your macOS launcher. Stay focused and on track with a running timer and task title displayed in the menu bar.
 
-## Overview Video
+## 🎥 Overview Video
 
 https://user-images.githubusercontent.com/105991837/236577248-a79f12b0-aa0a-4695-af9c-137775c84720.mp4
 
@@ -62,7 +62,7 @@ Any calendars set up on macOS, including but not limited to:
 
 ---
 
-## Privacy
+## 🔒 Privacy
 
 When you opt to use Reminders or Things, your data remains local on your device, and the extension is designed not to transmit information to external servers or share it with third parties. Any cloud sync is handled by the Reminders or Things app itself. When you opt to use Todoist, Toggl, or Clockify, your data is fetched from and transmitted back to the respective servers via the official API, solely for the essential functionality of the extension. The extension does not transmit information to external servers or share it with third parties beyond the necessary interactions with the services you've selected to use.
 
