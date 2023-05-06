@@ -46,7 +46,7 @@ Any calendars set up on macOS, including but not limited to:
 
 - [iCloud Calendar](https://www.icloud.com/calendar)
 - [Google Calendar](https://calendar.google.com/)
-- [Outlook Calendar](https:/outlook.live.com/)
+- [Outlook Calendar](https://outlook.live.com/)
 
 ### Time Tracking Apps
 
