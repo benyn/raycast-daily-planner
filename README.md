@@ -75,6 +75,12 @@ Use these Shortcuts when you are on mobile and can’t use Raycast.
 - [Start To-Do Timer](https://www.icloud.com/shortcuts/3dfdc2108a354ad1860a8117e239a633) (supports Reminders/Things only due to Todoist Shortcuts limitations)
 - [Stop Running Timer](https://www.icloud.com/shortcuts/986cea63d5814ef284a1a274b8f52fb0)
 
+## 🤝 Contributing
+
+We appreciate and welcome contributions to this project! If you're interested in contributing, please follow Raycast's [Contribute to an Extension guide](https://developers.raycast.com/basics/contribute-to-an-extension). We're particularly keen on contributions related to data analysis in productivity reports. If you have data analysis or data science expertise, your help in examining trends and uncovering meaningful patterns in productivity reports to enhance the extension would be invaluable.
+
+To report a bug, request a new feature, or provide feedback, create an issue in the [raycast/extensions](https://github.com/raycast/extensions/issues) repository. When creating an issue, please remember to add the `extension: daily-planner` label to ensure it is categorized correctly.
+
 ## 💫 Inspirations
 
 - [“Deep Work”](https://calnewport.com/writing/#books) by Cal Newport
