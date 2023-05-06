@@ -62,6 +62,12 @@ Any calendars set up on macOS, including but not limited to:
 
 ---
 
+## Privacy
+
+When you opt to use Reminders or Things, your data remains local on your device, and the extension is designed not to transmit information to external servers or share it with third parties. Any cloud sync is handled by the Reminders or Things app itself. When you opt to use Todoist, Toggl, or Clockify, your data is fetched from and transmitted back to the respective servers via the official API, solely for the essential functionality of the extension. The extension does not transmit information to external servers or share it with third parties beyond the necessary interactions with the services you've selected to use.
+
+This extension does not track your activities or collect your data, even in an anonymized or aggregated form. As this extension is an open-source project, anyone is invited to review its code, not only to verify the accuracy of the privacy claims but also to suggest improvements. Please note that the extension operates within the Raycast platform, and we cannot control or provide guarantees regarding Raycast's data handling practices. We encourage you to review Raycast's privacy policy to better understand how your data is managed and protected.
+
 ## 📚 Shortcuts for iOS/iPadOS
 
 Use these Shortcuts when you are on mobile and can’t use Raycast.
