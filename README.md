@@ -40,7 +40,7 @@ https://user-images.githubusercontent.com/105991837/236577248-a79f12b0-aa0a-4695
 - [Things](https://culturedcode.com/things/)
 - [Todoist](https://todoist.com/)
 
-### Calendar
+### Calendars
 
 Any calendars set up on macOS, including but not limited to:
 
@@ -56,7 +56,11 @@ Any calendars set up on macOS, including but not limited to:
 
 ## 💡 Usage
 
-[View the documentation](https://benyn.github.io/raycast-daily-planner) for usage information.
+---
+
+[View the **documentation**](https://benyn.github.io/raycast-daily-planner) for usage information.
+
+---
 
 ## 📚 Shortcuts for iOS/iPadOS
 
@@ -64,7 +68,6 @@ Use these Shortcuts when you are on mobile and can’t use Raycast.
 
 - [Start To-Do Timer](https://www.icloud.com/shortcuts/3dfdc2108a354ad1860a8117e239a633) (supports Reminders/Things only due to Todoist Shortcuts limitations)
 - [Stop Running Timer](https://www.icloud.com/shortcuts/986cea63d5814ef284a1a274b8f52fb0)
-- [Schedule your Reminders in your Calendar](https://www.reddit.com/r/shortcuts/comments/12yio7h/schedule_your_reminders_in_your_calendar/) (authored by [u/Silver-Finding-6233](https://www.reddit.com/user/Silver-Finding-6233/) and not directly compatible with the Daily Planner Raycast extension; a modified, compatible version can be provided if there’s enough demand)
 
 ## 💫 Inspirations
 
