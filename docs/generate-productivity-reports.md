@@ -59,6 +59,8 @@ Any time entries that are not associated with any to-dos or events won't be incl
 
 ## Command Preferences
 
-- **Exclude Weekends**: Exclude to-dos, calendar events, and time entries occurring on Saturdays and Sundays from the reports. If `true`, nothing will show up in the reports even if you specifically set the report period to a weekend day. The default is `false`.
+- **Exclude Weekends**: Exclude to-dos, calendar events, and time entries occurring[^5] on Saturdays and Sundays from the reports. If `true`, nothing will show up in the reports even if you specifically set the report period to a weekend day. The default is `false`.
 - **Show Unscheduled & Open To-Dos**: Include incomplete to-dos that have not been assigned a time block or tracked in the generated reports. The default is `false`.
 - **Group To-Dos by Spontaneity**: Group to-dos based on whether they were completed as scheduled (with assigned time/task blocks) or spontaneously (without assigned time/task blocks). The default is `true`.
+
+[^5]: For to-dos, "occurring" means that either the completion date, start date, or due date falls on a Saturday or Sunday. For calendar events and time entries, "occurring" means the start date falls on a Saturday or Sunday.
