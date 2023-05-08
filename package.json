@@ -314,7 +314,7 @@
     {
       "name": "eventCalendars",
       "type": "textfield",
-      "title": "Event Calendar Names",
+      "title": "Event Calendars",
       "description": "Enter the names of calendars, separated by commas without leading or trailing spaces, containing events that should not conflict with your time blocks.",
       "required": false,
       "placeholder": "Home,School"

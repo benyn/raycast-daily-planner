@@ -18,7 +18,7 @@ type ExtensionPreferences = {
   "todoistAPIToken"?: string,
   /** Time Block Calendar - Enter the name of the calendar where your time blocks should be placed. If this calendar doesn't exist, you'll see an option to create it when launching a command. */
   "blockCalendar": string,
-  /** Event Calendar Names - Enter the names of calendars, separated by commas without leading or trailing spaces, containing events that should not conflict with your time blocks. */
+  /** Event Calendars - Enter the names of calendars, separated by commas without leading or trailing spaces, containing events that should not conflict with your time blocks. */
   "eventCalendars"?: string,
   /** Time Tracking App - Choose the time tracking app to use for logging time entries. */
   "timeTrackingApp"?: "calendar" | "Toggl" | "Clockify",

@@ -136,8 +136,8 @@ export interface GroupReportItem extends ReportItem {
 
 export const reportItemSortDescriptor = {
   todoTimestamp: { title: "To-Do Completion Time", ascending: true, key: "c" }, //, default from `useSQL`
-  blockedDuration: { title: "Total Time Blocked", ascending: false, key: "b" },
-  trackedDuration: { title: "Total Time Tracked", ascending: false, key: "t" },
+  blockedDuration: { title: "Total Blocked Time", ascending: false, key: "b" },
+  trackedDuration: { title: "Total Tracked Time", ascending: false, key: "t" },
   percentTracked: { title: "% Tracked / Blocked", ascending: false, key: "p" },
   firstBlockStartTime: { title: "Block Start Time", ascending: true, key: "s" },
   firstTimeEntryStartTime: { title: "Time Entry Start Time", ascending: true, key: "e" },

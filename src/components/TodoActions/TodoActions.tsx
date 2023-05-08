@@ -415,6 +415,13 @@ export default function TodoActions({
           shortcut={{ modifiers: ["cmd"], key: "r" }}
           onAction={() => void refresh()}
         />
+
+        <Action.OpenInBrowser
+          title="Open Documentation"
+          icon={Icon.Globe}
+          shortcut={{ modifiers: ["shift", "cmd"], key: "h" }}
+          url="https://benyn.github.io/raycast-daily-planner/block-time"
+        />
       </ActionPanel.Section>
     </>
   );
