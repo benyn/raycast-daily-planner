@@ -63,7 +63,7 @@ It initially suggests slots that are:
 - From now through the next 7 days
 - Of the duration set by the ["Default Time Block Duration"](#default-time-block-duration) setting
 - Within your working hours (between ["Working Hours Start Time"](#working-hours-start-time) and ["Working Hours End Time"](#working-hours-end-time))
-- Free from conflicts with events on your ["Time Block Calendar"](extension-settings#time-block-calendar-required) or any of the ["Event Calendars"](extension-settings#event-calendars-optional) configured in Raycast Settings.
+- Free from conflicts with events on your ["Time Block Calendar"](extension-settings#time-block-calendar) or any of the ["Event Calendars"](extension-settings#event-calendars) configured in Raycast Settings.
 
 ### Custom Search Criteria
 

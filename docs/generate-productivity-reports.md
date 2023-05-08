@@ -26,7 +26,7 @@ Productivity Reports provide objective data on these actual outcomes, allowing y
 
 ### With Time Tracking & Grouping
 
-When the [Time Tracking App](extension-settings#time-tracking-app-optional) is set up correctly, and the [Group To-Dos by Spontaneity](#group-to-dos-by-spontaneity) option is enabled, the productivity report displays item statuses based on the following criteria:
+When the [Time Tracking App](extension-settings#time-tracking-app) is set up correctly, and the [Group To-Dos by Spontaneity](#group-to-dos-by-spontaneity) option is enabled, the productivity report displays item statuses based on the following criteria:
 
 | Item Status               | Todo Status  | Time Blocked?[^1]      | Time Tracked? |
 | ------------------------- | ------------ | ---------------------- | ------------- |
@@ -44,7 +44,7 @@ When the [Time Tracking App](extension-settings#time-tracking-app-optional) is s
 
 ### With Time Blocks Only
 
-When the [Time Tracking App](extension-settings#time-tracking-app-optional) is not set up, or the [Group To-Dos by Spontaneity](#group-to-dos-by-spontaneity) option is disabled, the productivity report displays item statuses based on the following criteria:
+When the [Time Tracking App](extension-settings#time-tracking-app) is not set up, or the [Group To-Dos by Spontaneity](#group-to-dos-by-spontaneity) option is disabled, the productivity report displays item statuses based on the following criteria:
 
 | Item Status | Todo Status  | Time Blocked?[^1] |
 | ----------- | ------------ | ----------------- |
@@ -55,7 +55,7 @@ When the [Time Tracking App](extension-settings#time-tracking-app-optional) is n
 
 ## Tracked Time Allocation
 
-Time tracked for task blocks is distributed evenly among the to-dos within the task blocks. When there are multiple time entries for a task block or if a task block is scheduled multiple times, the allocation of tracked time depends on the [Time Tracking App](extension-settings#time-tracking-app-optional):
+Time tracked for task blocks is distributed evenly among the to-dos within the task blocks. When there are multiple time entries for a task block or if a task block is scheduled multiple times, the allocation of tracked time depends on the [Time Tracking App](extension-settings#time-tracking-app):
 
 - **Calendar (URL-based allocation)**: The total tracked time from all entries with the same URL is divided equally among the to-dos embedded in that URL.
 - **Toggl/Clockify (title-based allocation)**: The total tracked time from all entries with the same title is allocated to the to-dos within the task blocks that share the same title. The allocation is weighted by the duration of each time block.
