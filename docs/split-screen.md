@@ -13,6 +13,12 @@ Toggle between a split-screen view of To-Dos and Calendar with just a single key
 
 ## Video Walkthrough
 
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <video style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="/assets/split-screen.mp4" title="Show Menu Bar Timer video walk-through" controls>
+    Your browser does not support the video tag.
+  </video>
+</div>
+
 ## Functionality Details
 
 - **Primary to-do app only**: Additional to-do apps not launched or rearranged by the command.
@@ -22,4 +28,6 @@ Toggle between a split-screen view of To-Dos and Calendar with just a single key
 
 ## Command Preferences
 
-- **Window Size Ratio**: Specify the ratio between the widths of the to-do app window and the calendar window when displayed side by side. The default is `1:1`.
+### Window Size Ratio
+
+Specify the ratio between the widths of the to-do app window and the calendar window when displayed side by side. The default is `1:1`.

@@ -10,6 +10,12 @@ Track time spent on tasks using Toggl or Clockify, or directly on your calendar.
 
 ## Video Walkthrough
 
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <video style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="/assets/track-time.mp4" title="Show Menu Bar Timer video walk-through" controls>
+    Your browser does not support the video tag.
+  </video>
+</div>
+
 ## Project and Tag Sync
 
 - **One-way sync**: From to-do list apps to Toggl/Clockify only.
@@ -20,4 +26,6 @@ Track time spent on tasks using Toggl or Clockify, or directly on your calendar.
 
 ## Command Preferences
 
-- **Update Start/Due Date on Timer Start**: If a timer for a task is started earlier than its start date (Reminders/Things) or due date (Todoist), update the start/due date. If started later, the start/due date always remains unchanged. The default is `true`.
+### Update Start/Due Date on Timer Start
+
+If a timer for a task is started earlier than its start date (Reminders/Things) or due date (Todoist), update the start/due date. If started later, the start/due date always remains unchanged. The default is `true`.
