@@ -11,7 +11,7 @@ Know what you're supposed to be doing at every moment! A running timer and assoc
 ## Video Walkthrough
 
 <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-  <video style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="assets/show-menu-bar-timer.mp4" title="Show Menu Bar Timer video walk-through" controls>
+  <video style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="assets/show-menu-bar-timer.mp4" title="Show Menu Bar Timer video walk-through" controls poster="assets/show-menu-bar-timer.png">
     Your browser does not support the video tag.
   </video>
 </div>
