@@ -263,6 +263,13 @@ export default function ReportListItem({
               shortcut={{ modifiers: ["cmd"], key: "r" }}
               onAction={() => void refresh()}
             />
+
+            <Action.OpenInBrowser
+              title="Open Documentation"
+              icon={Icon.Globe}
+              shortcut={{ modifiers: ["shift", "cmd"], key: "h" }}
+              url="https://benyn.github.io/raycast-daily-planner/generate-productivity-reports"
+            />
           </ActionPanel.Section>
         </ActionPanel>
       }

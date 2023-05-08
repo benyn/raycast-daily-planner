@@ -243,6 +243,12 @@ export default function RunningTimer() {
           title="View All To-Dos"
           onAction={() => void launchCommand({ name: "track-time", type: LaunchType.UserInitiated })}
         />
+
+        <MenuBarExtra.Item
+          title="Open Documentation"
+          onAction={() => void open("https://benyn.github.io/raycast-daily-planner")}
+        />
+
         <MenuBarExtra.Item
           title="Settings..."
           shortcut={{ modifiers: ["cmd"], key: "," }}
