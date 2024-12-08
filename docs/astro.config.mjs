@@ -3,7 +3,8 @@ import starlight from "@astrojs/starlight";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://benyn.github.io/raycast-daily-planner/",
+  site: "https://benyn.github.io",
+  base: "/raycast-daily-planner",
   integrations: [
     starlight({
       title: "Raycast Daily Planner Extension",
