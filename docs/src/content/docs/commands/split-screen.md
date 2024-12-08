@@ -1,10 +1,8 @@
 ---
-layout: default
 title: Split Screen To-Dos and Calendar
-nav_order: 7
+sidebar:
+  order: 5
 ---
-
-# Split Screen To-Dos and Calendar
 
 Toggle between a split-screen view of To-Dos and Calendar with just a single keystroke.
 
@@ -13,11 +11,9 @@ Toggle between a split-screen view of To-Dos and Calendar with just a single key
 
 ## Video Walkthrough
 
-<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-  <video style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="assets/split-screen.mp4" title="Show Menu Bar Timer video walk-through" controls poster="assets/split-screen.png">
-    Your browser does not support the video tag.
-  </video>
-</div>
+<video src="/assets/split-screen.mp4" title="Show Menu Bar Timer video walk-through" controls poster="/assets/split-screen.png">
+  Your browser does not support the video tag.
+</video>
 
 ## Functionality Details
 

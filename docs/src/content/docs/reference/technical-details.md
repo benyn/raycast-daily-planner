@@ -1,10 +1,6 @@
 ---
-layout: default
 title: Technical Details
-nav_order: 9
 ---
-
-# Technical Details
 
 ## Data Sources
 

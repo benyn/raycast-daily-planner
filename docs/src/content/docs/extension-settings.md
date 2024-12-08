@@ -1,22 +1,20 @@
 ---
-layout: default
 title: Extension Settings
-nav_order: 2
+sidebar:
+  order: 2
 ---
-
-# Extension Settings
 
 ## Welcome Screen
 
 When you start using the extension, you'll need to select your [Primary To-Do List App](#primary-to-do-list-app) and [Time Block Calendar](#time-block-calendar).
 
-![Welcome Screen Settings](assets/extension-settings-1.png)
+![Welcome Screen Settings](/assets/extension-settings-1.png)
 
 ## Complete Extension Settings
 
 To access and modify all available options, go to Raycast Settings > Extensions > Daily Planner.
 
-![Raycast Settings](assets/extension-settings-2.png)
+![Raycast Settings](/assets/extension-settings-2.png)
 
 ## To-Do List Integration
 

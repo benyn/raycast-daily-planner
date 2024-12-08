@@ -1,11 +1,8 @@
 ---
-layout: default
 title: Todoist
-parent: App-Specific Notes
-nav_order: 3
+sidebar:
+  order: 3
 ---
-
-# Todoist
 
 - **Due date**: Loses any time components, if changed.
 - **Sections**: Currently not supported.
