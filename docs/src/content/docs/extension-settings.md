@@ -22,7 +22,7 @@ The Daily Planner extension supports integration with three popular to-do list a
 
 ### Primary To-Do List App
 
-_**Required**_. The extension will create new tasks in this app by default. It will also adopt this app's keyboard shortcut schema. This is also the app that is displayed in split screen mode in the [“Split Screen To-Dos and Calendar”](split-screen.md) command.
+_**Required**_. The extension will create new tasks in this app by default. It will also adopt this app's keyboard shortcut schema. This is also the app that is displayed in split screen mode in the [“Split Screen To-Dos and Calendar”](/raycast-daily-planner/commands/split-screen) command.
 
 ### Additional To-Do List Apps
 
@@ -50,7 +50,7 @@ Enable time tracking to log time spent on tasks. Choose between built-in calenda
 
 ### Time Tracking App
 
-_Required only if using [Track Time for To-Dos](track-time)_. Select "Calendar" for basic but complete offline and privacy-protected time tracking on your calendar. Or, choose "Toggl" or "Clockify" to integrate with their time tracking service and sync projects and tags[^1]. Leave the “Calendar for Time Tracking” and “Time Tracking Service API Key” fields blank to disable time tracking.
+_Required only if using [Track Time for To-Dos](/raycast-daily-planner/commands/track-time)_. Select "Calendar" for basic but complete offline and privacy-protected time tracking on your calendar. Or, choose "Toggl" or "Clockify" to integrate with their time tracking service and sync projects and tags[^1]. Leave the “Calendar for Time Tracking” and “Time Tracking Service API Key” fields blank to disable time tracking.
 
 ### Calendar for Time Tracking
 

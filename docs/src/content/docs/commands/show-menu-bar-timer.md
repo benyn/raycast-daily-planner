@@ -20,9 +20,9 @@ Run the "Show Menu Bar Timer" command in Raycast to activate the menu bar timer.
 
 - **In-extension changes only**: The menu bar timer reflects modifications made within the extension only, using local cache to minimize resource consumption. External changes, e.g., those made in Toggl/Clockify, won't be shown.
 - **To-do timers only**: Timers not associated with any to-dos are not displayed.
-- **Timer duration**: The menu bar timer shows the most recent time entry duration or the sum of paused/resumed timers, which may differ from the total duration of all time entries for the current date as shown in the [Track Time for To-Dos](track-time) command.
+- **Timer duration**: The menu bar timer shows the most recent time entry duration or the sum of paused/resumed timers, which may differ from the total duration of all time entries for the current date as shown in the [Track Time for To-Dos](/raycast-daily-planner/commands/track-time) command.
 - **Project/tag sync not supported**: Projects and tags are not synced when a timer is started in the menu bar.
-- **Remaining time blocks only**: In the Start Timer section, only current or upcoming time blocks are listed. Unlike in [Block Time for To-Dos](block-time), past time blocks with incomplete associated to-dos aren't displayed. Start a timer by clicking a time block.
+- **Remaining time blocks only**: In the Start Timer section, only current or upcoming time blocks are listed. Unlike in [Block Time for To-Dos](/raycast-daily-planner/commands/block-time), past time blocks with incomplete associated to-dos aren't displayed. Start a timer by clicking a time block.
 
 ## Command Preferences
 
