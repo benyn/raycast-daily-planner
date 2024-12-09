@@ -8,7 +8,7 @@ Know what you're supposed to be doing at every moment! A running timer and assoc
 
 ## Video Walkthrough
 
-<video src="/raycast-daily-planner/assets/show-menu-bar-timer.mp4" title="Show Menu Bar Timer video walk-through" controls poster="/raycast-daily-planner/assets/show-menu-bar-timer.png">
+<video src="/raycast-daily-planner/assets/show-menu-bar-timer.mp4" title="Show Menu Bar Timer video walk-through" controls poster="/raycast-daily-planner/assets/show-menu-bar-timer.png" data-umami-event="video-play" data-umami-event-video-title="Show Menu Bar Timer">
   Your browser does not support the video tag.
 </video>
 

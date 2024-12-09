@@ -12,10 +12,16 @@ hero:
     - text: Get started
       link: extension-settings/
       icon: right-arrow
+      attrs:
+        data-umami-event: get-started-button
+        data-umami-event-button-variant: primary
     - text: Install the extension
       link: https://www.raycast.com/benyn/daily-planner
       icon: external
       variant: minimal
+      attrs:
+        data-umami-event: install-extension-button
+        data-umami-event-button-variant: minimal
 ---
 
 import { Card, CardGrid } from "@astrojs/starlight/components";
@@ -25,6 +31,8 @@ import { Card, CardGrid } from "@astrojs/starlight/components";
   title="Introducing Raycast Daily Planner"
   controls
   poster="/raycast-daily-planner/assets/raycast-daily-planner.png"
+  data-umami-event="video-play"
+  data-umami-event-video-title="Introducing Raycast Daily Planner"
 >
   Your browser does not support the video tag.
 </video>
