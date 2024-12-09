@@ -11,7 +11,7 @@ Toggle between a split-screen view of To-Dos and Calendar with just a single key
 
 ## Video Walkthrough
 
-<video src="/assets/split-screen.mp4" title="Show Menu Bar Timer video walk-through" controls poster="/assets/split-screen.png">
+<video src="/raycast-daily-planner/assets/split-screen.mp4" title="Show Menu Bar Timer video walk-through" controls poster="/raycast-daily-planner/assets/split-screen.png">
   Your browser does not support the video tag.
 </video>
 

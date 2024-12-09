@@ -8,7 +8,7 @@ Track time spent on tasks using Toggl or Clockify, or directly on your calendar.
 
 ## Video Walkthrough
 
-<video src="/assets/track-time.mp4" title="Show Menu Bar Timer video walk-through" controls poster="/assets/track-time.png">
+<video src="/raycast-daily-planner/assets/track-time.mp4" title="Show Menu Bar Timer video walk-through" controls poster="/raycast-daily-planner/assets/track-time.png">
   Your browser does not support the video tag.
 </video>
 
