@@ -14,7 +14,7 @@ Productivity Reports provide objective data on these actual outcomes, allowing y
 
 ## Video Walkthrough
 
-<video src="/raycast-daily-planner/assets/generate-productivity-reports.mp4" title="Show Menu Bar Timer video walk-through" controls poster="/raycast-daily-planner/assets/generate-productivity-reports.png">
+<video src="/raycast-daily-planner/assets/generate-productivity-reports.mp4" title="Generate Productivity Reports video walk-through" controls poster="/raycast-daily-planner/assets/generate-productivity-reports.png">
   Your browser does not support the video tag.
 </video>
 
