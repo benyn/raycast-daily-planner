@@ -1,11 +1,8 @@
 ---
-layout: default
 title: Reminders
-parent: App-Specific Notes
-nav_order: 1
+sidebar:
+  order: 1
 ---
-
-# Reminders
 
 - **Tags**: Displayed but not editable due to Apple API limitations.
 - **Subtasks**: Converted to standalone Reminders when the parent Reminder is moved to a different list.

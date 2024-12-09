@@ -1,10 +1,8 @@
 ---
-layout: default
 title: Generate Productivity Reports
-nav_order: 5
+sidebar:
+  order: 3
 ---
-
-# Generate Productivity Reports
 
 Build customizable reports on blocked and tracked time to uncover productivity patterns and optimize your workflow. Discover how much time you're spending on meetings and other events.
 
@@ -16,11 +14,9 @@ Productivity Reports provide objective data on these actual outcomes, allowing y
 
 ## Video Walkthrough
 
-<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-  <video style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="assets/generate-productivity-reports.mp4" title="Show Menu Bar Timer video walk-through" controls poster="assets/generate-productivity-reports.png">
-    Your browser does not support the video tag.
-  </video>
-</div>
+<video src="/assets/generate-productivity-reports.mp4" title="Show Menu Bar Timer video walk-through" controls poster="/assets/generate-productivity-reports.png">
+  Your browser does not support the video tag.
+</video>
 
 ## Report Item Status
 

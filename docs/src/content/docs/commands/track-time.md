@@ -1,20 +1,16 @@
 ---
 title: Track Time for To-Dos
-layout: default
-nav_order: 4
+sidebar:
+  order: 2
 ---
-
-# Track Time for To-Dos
 
 Track time spent on tasks using Toggl or Clockify, or directly on your calendar. Compare actual time spent with the time blocks you've budgeted for each task.
 
 ## Video Walkthrough
 
-<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-  <video style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="assets/track-time.mp4" title="Show Menu Bar Timer video walk-through" controls poster="assets/track-time.png">
-    Your browser does not support the video tag.
-  </video>
-</div>
+<video src="/assets/track-time.mp4" title="Show Menu Bar Timer video walk-through" controls poster="/assets/track-time.png">
+  Your browser does not support the video tag.
+</video>
 
 ## Project and Tag Sync
 
